@@ -15,6 +15,8 @@ class TableViewController: UITableViewController {
     struct Item: Codable {
         var name: String  // アイテムの名前を保持するプロパティ
         var isChecked: Bool  // アイテムがチェック済みかどうかを示すプロパティ
+        var category: String  // カテゴリを示すプロパティ
+        var purchaseDate: Date?  // 購入日を示すプロパティ
 
         mutating func toggleIsChecked() { // チェック状態を反転させるメソッド
             isChecked.toggle() // isCheckedの値を反転させる
