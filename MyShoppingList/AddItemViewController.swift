@@ -44,7 +44,10 @@ class AddItemViewController: UIViewController {
 
     private(set) var editedItem: TableViewController.Item?  // 編集後のアイテムを格納するプロパティ
 
-    private let categories = ["Food", "Electronics", "Clothing"]  // 仮のカテゴリデータ
+    private let categories = ["📕本・コミック・雑誌", "💿DVD・ミュージック・ゲーム", "📺家電・カメラ・AV機器",
+                              "💻パソコン・オフィス用品","🍽ホーム＆キッチン・ペット・DIY", "🥐食品・飲料",
+                              "🧴ドラッグストア・ビューティー","🍼ベビー・おもちゃ・ホビー", "👕服・シューズ・バッグ・腕時計",
+                              "🏕スポーツ＆アウトドア", "🚗車＆バイク・産業・研究開発"]  // カテゴリデータ
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,16 +55,23 @@ class AddItemViewController: UIViewController {
         categoryPickerView.dataSource = self
         categoryPickerView.delegate = self
 
+        // 現在の日付の時間を00:00に設定
+        let calendar = Calendar.current
+        let now = Date()
+        let midnightToday = calendar.startOfDay(for: now)  // 今日の00:00
+
         switch mode {  // モードに応じた初期設定
         case .add:
-            break  // 追加モードでは特に初期設定は不要
+            datePicker.date = midnightToday  // 追加モードでは日付を現在の日付で、時間を00:00にセット
         case .edit(let item):
             nameTextField.text = item.name  // 編集モードでは既存のアイテム名をテキストフィールドにセット
             if let categoryIndex = categories.firstIndex(of: item.category) {
                 categoryPickerView.selectRow(categoryIndex, inComponent: 0, animated: false)
             }
             if let date = item.purchaseDate {
-                datePicker.date = date
+                datePicker.date = date  // 編集モードでは既存の購入日をセット
+            } else {
+                datePicker.date = midnightToday  // 購入日が設定されていない場合は今日の00:00
             }
         }
     }
@@ -103,7 +113,17 @@ extension AddItemViewController: UIPickerViewDataSource, UIPickerViewDelegate {
         return categories.count  // カテゴリの数を返す
     }
 
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return categories[row]  // 各行に表示するカテゴリ名を返す
+    // 各行に表示するカテゴリ名を返すメソッドをカスタマイズ
+    func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
+        let label = UILabel()
+        label.text = categories[row]
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 15)  // フォントサイズを15に設定
+        return label
+    }
+
+    // 行の高さを設定するメソッド（オプション、必要に応じて調整）
+    func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
+        return 35  // 行の高さを指定
     }
 }

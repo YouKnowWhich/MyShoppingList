@@ -33,12 +33,40 @@ class TableViewController: UITableViewController {
         }
     }
 
+    @IBOutlet weak var segmentedControl: UISegmentedControl!
+    
     // 画面がロードされたときに呼ばれるメソッド
     override func viewDidLoad() {
         super.viewDidLoad()  // 画面がロードされたときに呼ばれるメソッド
         loadItems()  // UserDefaultsからアイテムを読み込む
     }
 
+    @IBAction func sortItems(_ sender: UISegmentedControl) { // ソートアクションが呼び出されたときに実行されるメソッド
+        switch sender.selectedSegmentIndex {  // セグメントコントロールの選択されたインデックスに基づいて処理を分岐
+            case 0:
+                // 日付でソート
+                items.sort {  // items 配列をソート
+                    if let date1 = $0.purchaseDate, let date2 = $1.purchaseDate {  // 両方のアイテムに購入日が設定されている場合
+                        return date1 < date2  // 購入日が早い順にソート
+                    } else if $0.purchaseDate == nil {  // 最初のアイテムの購入日が設定されていない場合
+                        return false  // 購入日がないアイテムは後ろに配置
+                    } else {
+                        return true  // 購入日がないアイテムは前に配置
+                    }
+                }
+            case 1:
+                // カテゴリでソート
+                items.sort { $0.category < $1.category }  // category プロパティを基準に昇順でソート
+            case 2:
+                // 名前でアイウエオ順にソート
+                items.sort { $0.name.localizedCompare($1.name) == .orderedAscending }  // name プロパティをローカライズされた昇順でソート
+            default:
+                break  // 他のケースでは何もしない
+            }
+            tableView.reloadData()  // ソート後にテーブルビューを再読み込みして表示を更新
+    }
+    
+    
     // セクション内の行数を返すメソッド
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return items.count  // itemsの数を行数として返す
@@ -48,7 +76,14 @@ class TableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell1", for: indexPath) as! ItemTableViewCell  // 再利用可能なセルを取得し、カスタムセルにキャスト
         let item = items[indexPath.row]  // 現在の行のアイテムを取得
-        cell.configure(item: item)  // セルをアイテムで設定
+        // カテゴリ名の1文字目を取得して表示する
+        let categoryInitial = String(item.category.prefix(1))
+
+        // item を設定し、category を 1文字目のみ渡す
+        var modifiedItem = item
+        modifiedItem.category = categoryInitial
+
+        cell.configure(item: modifiedItem)  // セルをアイテムで設定
         return cell  // 設定済みのセルを返す
     }
 
