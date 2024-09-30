@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4F42530A2CA4376700906CA7 /* PurchasedItemsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F4253092CA4376700906CA7 /* PurchasedItemsViewController.swift */; };
 		4FF4B0A02C60FF0C003ABC54 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF4B09F2C60FF0C003ABC54 /* AppDelegate.swift */; };
 		4FF4B0A22C60FF0C003ABC54 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF4B0A12C60FF0C003ABC54 /* SceneDelegate.swift */; };
 		4FF4B0A42C60FF0C003ABC54 /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF4B0A32C60FF0C003ABC54 /* TableViewController.swift */; };
@@ -18,6 +19,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4F4253092CA4376700906CA7 /* PurchasedItemsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchasedItemsViewController.swift; sourceTree = "<group>"; };
 		4FF4B09C2C60FF0C003ABC54 /* MyShoppingList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyShoppingList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FF4B09F2C60FF0C003ABC54 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4FF4B0A12C60FF0C003ABC54 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -63,6 +65,7 @@
 				4FF4B09F2C60FF0C003ABC54 /* AppDelegate.swift */,
 				4FF4B0A12C60FF0C003ABC54 /* SceneDelegate.swift */,
 				4FF4B0A32C60FF0C003ABC54 /* TableViewController.swift */,
+				4F4253092CA4376700906CA7 /* PurchasedItemsViewController.swift */,
 				4FF4B0B32C672C68003ABC54 /* AddItemViewController.swift */,
 				4FF4B0B52C672D45003ABC54 /* ItemTableViewCell.swift */,
 				4FF4B0A52C60FF0C003ABC54 /* Main.storyboard */,
@@ -145,6 +148,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FF4B0A42C60FF0C003ABC54 /* TableViewController.swift in Sources */,
+				4F42530A2CA4376700906CA7 /* PurchasedItemsViewController.swift in Sources */,
 				4FF4B0B42C672C68003ABC54 /* AddItemViewController.swift in Sources */,
 				4FF4B0B62C672D45003ABC54 /* ItemTableViewCell.swift in Sources */,
 				4FF4B0A02C60FF0C003ABC54 /* AppDelegate.swift in Sources */,

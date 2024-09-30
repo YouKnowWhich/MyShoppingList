@@ -1,15 +1,16 @@
 //
 //  TableViewController.swift
-//  
-//  
+//
+//
 //  Created by Yuchinante on 2024/08/05
-//  
+//
 //
 
 import UIKit
 
 class TableViewController: UITableViewController {
-    private let keyItems = "items"  // UserDefaultsに保存するためのキーを定義
+    private let keyItems = "items"  // UserDefaultsに保存するためのキー
+    private let keyPurchasedItems = "purchasedItems"  // 購入済アイテム用のキー
 
     // アイテムを表すデータモデル構造体を定義し、Codableに準拠
     struct Item: Codable {
@@ -18,55 +19,61 @@ class TableViewController: UITableViewController {
         var category: String  // カテゴリを示すプロパティ
         var purchaseDate: Date?  // 購入日を示すプロパティ
 
-        mutating func toggleIsChecked() { // チェック状態を反転させるメソッド
-            isChecked.toggle() // isCheckedの値を反転させる
+        mutating func toggleIsChecked() {  // チェック状態を反転させるメソッド
+            isChecked.toggle()  // isCheckedの値を反転させる
         }
     }
 
     // 編集するセルのインデックスパスを保持するプロパティ
     private var editIndexPath: IndexPath?
 
-    // アイテムの配列を保持するプロパティ
+    // 未購入アイテムと購入済みアイテムを管理
     private var items: [Item] = [] {
         didSet {  // itemsが更新されたときに呼ばれるプロパティオブザーバ
-            saveItems()  // UserDefaultsにアイテムを保存する
+            saveItems()  // 未購入アイテムの保存
+        }
+    }
+    private var purchasedItems: [Item] = [] {
+        didSet {
+            savePurchasedItems()  // 購入済みのアイテムの保存
         }
     }
 
     @IBOutlet weak var segmentedControl: UISegmentedControl!
-    
+
     // 画面がロードされたときに呼ばれるメソッド
     override func viewDidLoad() {
         super.viewDidLoad()  // 画面がロードされたときに呼ばれるメソッド
         loadItems()  // UserDefaultsからアイテムを読み込む
+        loadPurchasedItems()  // UserDefaultsから購入済みアイテムのロード
     }
 
     @IBAction func sortItems(_ sender: UISegmentedControl) { // ソートアクションが呼び出されたときに実行されるメソッド
         switch sender.selectedSegmentIndex {  // セグメントコントロールの選択されたインデックスに基づいて処理を分岐
-            case 0:
-                // 日付でソート
-                items.sort {  // items 配列をソート
-                    if let date1 = $0.purchaseDate, let date2 = $1.purchaseDate {  // 両方のアイテムに購入日が設定されている場合
-                        return date1 < date2  // 購入日が早い順にソート
-                    } else if $0.purchaseDate == nil {  // 最初のアイテムの購入日が設定されていない場合
-                        return false  // 購入日がないアイテムは後ろに配置
-                    } else {
-                        return true  // 購入日がないアイテムは前に配置
-                    }
+        case 0:
+            // 日付でソート
+            items.sort {  // items 配列をソート
+                if let date1 = $0.purchaseDate, let date2 = $1.purchaseDate {  // 両方のアイテムに購入日が設定されている場合
+                    return date1 < date2  // 購入日が早い順にソート
+                } else if $0.purchaseDate == nil {  // 最初のアイテムの購入日が設定されていない場合
+                    return false  // 購入日がないアイテムは後ろに配置
+                } else {
+                    return true  // 購入日がないアイテムは前に配置
                 }
-            case 1:
-                // カテゴリでソート
-                items.sort { $0.category < $1.category }  // category プロパティを基準に昇順でソート
-            case 2:
-                // 名前でアイウエオ順にソート
-                items.sort { $0.name.localizedCompare($1.name) == .orderedAscending }  // name プロパティをローカライズされた昇順でソート
-            default:
-                break  // 他のケースでは何もしない
             }
-            tableView.reloadData()  // ソート後にテーブルビューを再読み込みして表示を更新
+        case 1:
+            // カテゴリでソート
+            items.sort { $0.category < $1.category }  // category プロパティを基準に昇順でソート
+        case 2:
+            // 名前でアイウエオ順にソート
+            items.sort { $0.name.localizedCompare($1.name) == .orderedAscending }  // name プロパティをローカライズされた昇順でソート
+        default:
+            break  // 他のケースでは何もしない
+        }
+        tableView.reloadData()  // ソート後にテーブルビューを再読み込みして表示を更新
     }
-    
-    
+
+
     // セクション内の行数を返すメソッド
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return items.count  // itemsの数を行数として返す
@@ -89,8 +96,16 @@ class TableViewController: UITableViewController {
 
     // セルが選択されたときの処理
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        items[indexPath.row].toggleIsChecked()  // 選択されたアイテムのチェック状態を反転
-        tableView.reloadRows(at: [indexPath], with: .automatic)  // 該当セルを再読み込みして表示を更新
+        var selectedItem = items[indexPath.row]
+        selectedItem.isChecked = true  // チェック状態に変更
+        purchasedItems.append(selectedItem)  // 購入済みに追加
+        items.remove(at: indexPath.row)  // メインリストから削除
+        tableView.deleteRows(at: [indexPath], with: .automatic)  // メインリストのセルを削除
+
+        // 購入済みアイテムリストに更新を反映するために、購入済みリスト画面を再読み込み
+        if let purchasedVC = navigationController?.viewControllers.first(where: { $0 is PurchasedItemsViewController }) as? PurchasedItemsViewController {
+            purchasedVC.reloadPurchasedItems()  // 購入済みリストの画面を更新
+        }
     }
 
     // アクセサリボタンがタップされたときの処理
@@ -152,12 +167,19 @@ class TableViewController: UITableViewController {
             }
         }
     }
-
+    
     // アイテムをUserDefaultsに保存するメソッド
     private func saveItems() {
         let defaults = UserDefaults.standard  // UserDefaultsの標準インスタンスを取得
         if let data = try? JSONEncoder().encode(items) {  // アイテム配列をエンコード
             defaults.set(data, forKey: keyItems)  // エンコードされたデータをUserDefaultsに保存
+        }
+    }
+
+    private func savePurchasedItems() {
+        let defaults = UserDefaults.standard
+        if let data = try? JSONEncoder().encode(purchasedItems) {
+            defaults.set(data, forKey: keyPurchasedItems)
         }
     }
 
@@ -167,6 +189,14 @@ class TableViewController: UITableViewController {
         if let data = defaults.data(forKey: keyItems),  // 保存されたデータを取得
            let savedItems = try? JSONDecoder().decode([Item].self, from: data) {  // デコードしてアイテム配列に変換
             items = savedItems  // デコードされたアイテムを配列にセット
+        }
+    }
+
+    private func loadPurchasedItems() {
+        let defaults = UserDefaults.standard
+        if let data = defaults.data(forKey: keyPurchasedItems),
+           let savedItems = try? JSONDecoder().decode([Item].self, from: data) {
+            purchasedItems = savedItems
         }
     }
 }
