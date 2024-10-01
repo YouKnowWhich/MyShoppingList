@@ -102,6 +102,12 @@ class TableViewController: UITableViewController {
         items.remove(at: indexPath.row)  // メインリストから削除
         tableView.deleteRows(at: [indexPath], with: .automatic)  // メインリストのセルを削除
 
+        // 購入済みアイテムをUserDefaultsに保存
+        savePurchasedItems()
+
+        // NotificationCenterを使ってリストの更新を通知
+        NotificationCenter.default.post(name: NSNotification.Name("PurchasedItemsUpdated"), object: nil)
+
         // 購入済みアイテムリストに更新を反映するために、購入済みリスト画面を再読み込み
         if let purchasedVC = navigationController?.viewControllers.first(where: { $0 is PurchasedItemsViewController }) as? PurchasedItemsViewController {
             purchasedVC.reloadPurchasedItems()  // 購入済みリストの画面を更新

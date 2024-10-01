@@ -17,6 +17,10 @@ class PurchasedItemsViewController: UITableViewController {
         super.viewDidLoad()
         // UserDefaultsからデータを読み込む
         loadPurchasedItems()
+
+        // NotificationCenterを使用してリスト更新通知を受け取る
+        NotificationCenter.default.addObserver(self, selector: #selector(reloadPurchasedItems), name: NSNotification.Name("PurchasedItemsUpdated"), object: nil)
+
         // 初期選択のセグメントを設定（最初のセグメント）
         segmentedControl.selectedSegmentIndex = 0
         // データをソート（初期表示用に日付でソート）
@@ -30,6 +34,12 @@ class PurchasedItemsViewController: UITableViewController {
            let savedItems = try? JSONDecoder().decode([TableViewController.Item].self, from: data) {
             purchasedItems = savedItems
         }
+    }
+
+    // 他の画面から購入済みアイテムリストをリロードするためのメソッド
+    @objc func reloadPurchasedItems() {
+        loadPurchasedItems()
+        tableView.reloadData()
     }
 
     @IBAction func sortItems(_ sender: UISegmentedControl) {
@@ -74,9 +84,7 @@ class PurchasedItemsViewController: UITableViewController {
         return cell
     }
 
-    // 他の画面から購入済みアイテムリストをリロードするためのメソッド
-    func reloadPurchasedItems() {
-        loadPurchasedItems()
-        tableView.reloadData()
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("PurchasedItemsUpdated"), object: nil)
     }
 }
