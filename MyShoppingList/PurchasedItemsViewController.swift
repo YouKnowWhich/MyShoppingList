@@ -15,19 +15,17 @@ class PurchasedItemsViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // UserDefaultsからデータを読み込む
-        loadPurchasedItems()
+        loadPurchasedItems()  // UserDefaultsから購入済みアイテムを読み込む
 
-        // NotificationCenterを使用してリスト更新通知を受け取る
+        // 購入済みアイテムが更新されたときの通知を設定
         NotificationCenter.default.addObserver(self, selector: #selector(reloadPurchasedItems), name: NSNotification.Name("PurchasedItemsUpdated"), object: nil)
 
-        // 初期選択のセグメントを設定（最初のセグメント）
+        // 初期状態でセグメントを日付でソートするように設定
         segmentedControl.selectedSegmentIndex = 0
-        // データをソート（初期表示用に日付でソート）
         sortItems(segmentedControl)
     }
 
-    // 購入済みアイテムのロード
+    // UserDefaultsから購入済みアイテムをロード
     private func loadPurchasedItems() {
         let defaults = UserDefaults.standard
         if let data = defaults.data(forKey: "purchasedItems"),
@@ -36,35 +34,34 @@ class PurchasedItemsViewController: UITableViewController {
         }
     }
 
-    // 他の画面から購入済みアイテムリストをリロードするためのメソッド
+    // 購入済みアイテムリストをリロード
     @objc func reloadPurchasedItems() {
         loadPurchasedItems()
         tableView.reloadData()
     }
 
+    // セグメントコントロールに応じたソート処理
     @IBAction func sortItems(_ sender: UISegmentedControl) {
-        switch sender.selectedSegmentIndex {  // セグメントコントロールの選択されたインデックスに基づいて処理を分岐
+        switch sender.selectedSegmentIndex {
         case 0:
             // 日付でソート
             purchasedItems.sort {  // items 配列をソート
-                if let date1 = $0.purchaseDate, let date2 = $1.purchaseDate {  // 両方のアイテムに購入日が設定されている場合
-                    return date1 < date2  // 購入日が早い順にソート
-                } else if $0.purchaseDate == nil {  // 最初のアイテムの購入日が設定されていない場合
-                    return false  // 購入日がないアイテムは後ろに配置
+                if let date1 = $0.purchaseDate, let date2 = $1.purchaseDate {
+                    return date1 < date2
                 } else {
-                    return true  // 購入日がないアイテムは前に配置
+                    return $0.purchaseDate != nil
                 }
             }
         case 1:
             // カテゴリでソート
-            purchasedItems.sort { $0.category < $1.category }  // category プロパティを基準に昇順でソート
+            purchasedItems.sort { $0.category < $1.category }
         case 2:
-            // 名前でアイウエオ順にソート
-            purchasedItems.sort { $0.name.localizedCompare($1.name) == .orderedAscending }  // name プロパティをローカライズされた昇順でソート
+            // 名前でソート
+            purchasedItems.sort { $0.name.localizedCompare($1.name) == .orderedAscending }
         default:
-            break  // 他のケースでは何もしない
+            break
         }
-        tableView.reloadData()  // ソート後にテーブルビューを再読み込みして表示を更新
+        tableView.reloadData()
     }
 
     // テーブルの行数を返す
@@ -72,18 +69,19 @@ class PurchasedItemsViewController: UITableViewController {
         return purchasedItems.count
     }
 
-    // セルに購入済みアイテムを設定
+    // 各セルに購入済みアイテムを設定
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell1", for: indexPath) as! ItemTableViewCell
-        let item = purchasedItems[indexPath.row]
-        // カテゴリ名の1文字目を取得して表示する
-        var modifiedItem = item
-        modifiedItem.category = String(item.category.prefix(1))
-        // セルにデータを設定
-        cell.configure(item: modifiedItem)
+        var item = purchasedItems[indexPath.row]
+
+        // カテゴリ名の1文字目だけを表示
+        item.category = String(item.category.prefix(1))
+
+        cell.configure(item: item)
         return cell
     }
 
+    // クラス解放時にObserverを解除
     deinit {
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name("PurchasedItemsUpdated"), object: nil)
     }
