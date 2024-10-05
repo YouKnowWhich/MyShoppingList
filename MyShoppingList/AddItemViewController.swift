@@ -9,28 +9,28 @@
 import UIKit
 
 class AddItemViewController: UIViewController {
-    // モードを管理する列挙型
+    // アイテムの追加・編集モードを管理する列挙型
     enum Mode {
-        case add  // 新しいアイテムを追加するモード
-        case edit(TableViewController.Item)  // 既存のアイテムを編集するモード
+        case add  // 新規追加モード
+        case edit(TableViewController.Item)  // 編集モード
 
-        // セーブボタンが押されたときのセグエ識別子を返すプロパティ
+        // セーブボタンのセグエ識別子
         var saveButtonSegueIdentifier: String {
             switch self {
             case .add:
-                return "exitFromAddBySaveSegue"  // 追加モードのセグエ識別子
-            case .edit(let oldItem):
-                return "exitFromEditBySaveSegue"  // 編集モードのセグエ識別子
+                return "exitFromAddBySaveSegue"
+            case .edit:
+                return "exitFromEditBySaveSegue"
             }
         }
 
-        // キャンセルボタンが押されたときのセグエ識別子を返すプロパティ
+        // キャンセルボタンのセグエ識別子
         var cancelButtonSegueIdentifier: String {
             switch self {
             case .add:
-                return "exitFromAddByCancelSegue"  // 追加モードのキャンセルセグエ識別子
-            case .edit(let oldItem):
-                return "exitFromEditByCancelSegue"  // 編集モードのキャンセルセグエ識別子
+                return "exitFromAddByCancelSegue"
+            case .edit:
+                return "exitFromEditByCancelSegue"
             }
         }
     }
@@ -38,92 +38,95 @@ class AddItemViewController: UIViewController {
     var mode = Mode.add  // デフォルトで追加モードを設定
 
 
-    @IBOutlet weak var datePicker: UIDatePicker!  // 購入日を選択するデートピッカー
-    @IBOutlet weak var categoryPickerView: UIPickerView!  // カテゴリを選択するピッカービュー
-    @IBOutlet weak var nameTextField: UITextField!  // アイテム名を入力するテキストフィールド
+    @IBOutlet weak var datePicker: UIDatePicker!
+    @IBOutlet weak var categoryPickerView: UIPickerView!
+    @IBOutlet weak var nameTextField: UITextField!
 
-    private(set) var editedItem: TableViewController.Item?  // 編集後のアイテムを格納するプロパティ
+    private(set) var editedItem: TableViewController.Item?
 
+    // カテゴリ一覧データ
     private let categories = ["📕本・コミック・雑誌", "💿DVD・ミュージック・ゲーム", "📺家電・カメラ・AV機器",
                               "💻パソコン・オフィス用品","🍽ホーム＆キッチン・ペット・DIY", "🥐食品・飲料",
                               "🧴ドラッグストア・ビューティー","🍼ベビー・おもちゃ・ホビー", "👕服・シューズ・バッグ・腕時計",
-                              "🏕スポーツ＆アウトドア", "🚗車＆バイク・産業・研究開発"]  // カテゴリデータ
+                              "🏕スポーツ＆アウトドア", "🚗車＆バイク・産業・研究開発"]
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        // ピッカービューの設定
         categoryPickerView.dataSource = self
         categoryPickerView.delegate = self
 
-        // 現在の日付の時間を00:00に設定
+        // 今日の00:00の時間を取得
         let calendar = Calendar.current
         let now = Date()
         let midnightToday = calendar.startOfDay(for: now)  // 今日の00:00
 
-        switch mode {  // モードに応じた初期設定
+        // モードに応じた初期設定
+        switch mode {
         case .add:
-            datePicker.date = midnightToday  // 追加モードでは日付を現在の日付で、時間を00:00にセット
+            datePicker.date = midnightToday  // 追加モードでは今日の日付を設定
         case .edit(let item):
-            nameTextField.text = item.name  // 編集モードでは既存のアイテム名をテキストフィールドにセット
+            nameTextField.text = item.name
             if let categoryIndex = categories.firstIndex(of: item.category) {
                 categoryPickerView.selectRow(categoryIndex, inComponent: 0, animated: false)
             }
-            if let date = item.purchaseDate {
-                datePicker.date = date  // 編集モードでは既存の購入日をセット
-            } else {
-                datePicker.date = midnightToday  // 購入日が設定されていない場合は今日の00:00
-            }
+            datePicker.date = item.purchaseDate ?? midnightToday
         }
     }
 
+    // セーブボタン押下時の処理
     @IBAction func pressSaveButton(_ sender: Any) {
-        let isChecked: Bool  // アイテムのチェック状態を管理する変数
-        let selectedCategory = categories[categoryPickerView.selectedRow(inComponent: 0)]  // 選択されたカテゴリ
-        let selectedDate = datePicker.date  // 選択された購入日
+        let selectedCategory = categories[categoryPickerView.selectedRow(inComponent: 0)]
+        let selectedDate = datePicker.date
 
+        let isChecked: Bool
         switch mode {
         case .add:
-            isChecked = false  // 追加モードでは新規アイテムは未チェック状態
+            isChecked = false  // 新規アイテムは未チェック
         case .edit(let oldItem):
-            isChecked = oldItem.isChecked  // 編集モードでは既存アイテムのチェック状態を維持
+            isChecked = oldItem.isChecked  // 編集時は元のチェック状態を保持
         }
 
+        // 入力されたデータでアイテムを作成
         editedItem = TableViewController.Item(
             name: nameTextField.text ?? "",
             isChecked: isChecked,
             category: selectedCategory,
             purchaseDate: selectedDate
-        )  // 入力された名前、カテゴリ、購入日、チェック状態で新しいアイテムを作成
+        )
 
+        // セグエを実行
         performSegue(withIdentifier: mode.saveButtonSegueIdentifier, sender: sender)
-    }  // セーブボタン押下時のセグエを実行
+    }
 
+    // キャンセルボタン押下時の処理
     @IBAction func pressCancelButton(_ sender: Any) {  // キャンセルボタン押下時のセグエを実行
         performSegue(withIdentifier: mode.cancelButtonSegueIdentifier, sender: sender)
     }
 }
 
-// ピッカービューのデータソースとデリゲートを設定するための拡張
+// ピッカービューのデータソースとデリゲート
 extension AddItemViewController: UIPickerViewDataSource, UIPickerViewDelegate {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1  // カテゴリは一つのコンポーネントで選択
+        return 1  // コンポーネントは1つ
     }
 
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return categories.count  // カテゴリの数を返す
+        return categories.count
     }
 
-    // 各行に表示するカテゴリ名を返すメソッドをカスタマイズ
+    // ピッカービューの行にカテゴリ名を表示
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
         let label = UILabel()
         label.text = categories[row]
         label.textAlignment = .center
-        label.font = UIFont.systemFont(ofSize: 15)  // フォントサイズを15に設定
+        label.font = UIFont.systemFont(ofSize: 15)
         return label
     }
 
-    // 行の高さを設定するメソッド（オプション、必要に応じて調整）
+    // 行の高さを設定
     func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
-        return 35  // 行の高さを指定
+        return 35
     }
 }
