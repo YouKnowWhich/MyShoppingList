@@ -81,6 +81,28 @@ class PurchasedItemsViewController: UITableViewController {
         return cell
     }
 
+    // スワイプでアイテムを削除する処理を追加
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            // 購入済みアイテムリストからアイテムを削除
+            purchasedItems.remove(at: indexPath.row)
+
+            // UserDefaultsに変更後のデータを保存
+            savePurchasedItems()
+
+            // テーブルから行を削除
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        }
+    }
+
+    // 購入済みアイテムを保存
+    private func savePurchasedItems() {
+        let defaults = UserDefaults.standard
+        if let data = try? JSONEncoder().encode(purchasedItems) {
+            defaults.set(data, forKey: "purchasedItems")
+        }
+    }
+
     // クラス解放時にObserverを解除
     deinit {
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name("PurchasedItemsUpdated"), object: nil)
