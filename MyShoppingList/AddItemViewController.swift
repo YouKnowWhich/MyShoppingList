@@ -9,10 +9,10 @@
 import UIKit
 
 class AddItemViewController: UIViewController {
-    // アイテムの追加・編集モードを管理する列挙型
+    // アイテムの追加・編集モード
     enum Mode {
-        case add  // 新規追加モード
-        case edit(TableViewController.Item)  // 編集モード
+        case add  // 新規追加
+        case edit(TableViewController.Item)  // 編集
 
         // セーブボタンのセグエ識別子
         var saveButtonSegueIdentifier: String {
@@ -35,7 +35,7 @@ class AddItemViewController: UIViewController {
         }
     }
 
-    var mode = Mode.add  // デフォルトで追加モードを設定
+    var mode = Mode.add  // デフォルトで追加モード
 
 
     @IBOutlet weak var datePicker: UIDatePicker!
@@ -52,20 +52,24 @@ class AddItemViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupPickerViews()
+        setupInitialValues()
+    }
 
-        // ピッカービューの設定
+    // ピッカービューの設定
+    private func setupPickerViews() {
         categoryPickerView.dataSource = self
         categoryPickerView.delegate = self
+    }
 
-        // 今日の00:00の時間を取得
+    // モードに応じた初期設定
+    private func setupInitialValues() {
         let calendar = Calendar.current
-        let now = Date()
-        let midnightToday = calendar.startOfDay(for: now)  // 今日の00:00
+        let midnightToday = calendar.startOfDay(for: Date())
 
-        // モードに応じた初期設定
         switch mode {
         case .add:
-            datePicker.date = midnightToday  // 追加モードでは今日の日付を設定
+            datePicker.date = midnightToday
         case .edit(let item):
             nameTextField.text = item.name
             if let categoryIndex = categories.firstIndex(of: item.category) {
@@ -109,7 +113,7 @@ class AddItemViewController: UIViewController {
 // ピッカービューのデータソースとデリゲート
 extension AddItemViewController: UIPickerViewDataSource, UIPickerViewDelegate {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1  // コンポーネントは1つ
+        return 1
     }
 
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {

@@ -9,23 +9,25 @@
 import UIKit
 
 class PurchasedItemsViewController: UITableViewController {
-    private var purchasedItems: [TableViewController.Item] = []  // 購入済みアイテムの配列
+
+    // 購入済みアイテムリスト
+    private var purchasedItems: [TableViewController.Item] = []
 
     @IBOutlet weak var segmentedControl: UISegmentedControl!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadPurchasedItems()  // UserDefaultsから購入済みアイテムを読み込む
+        loadPurchasedItems()  // 購入済みアイテムを読み込む
 
-        // 購入済みアイテムが更新されたときの通知を設定
+        // 購入済みアイテムの更新を監視
         NotificationCenter.default.addObserver(self, selector: #selector(reloadPurchasedItems), name: NSNotification.Name("PurchasedItemsUpdated"), object: nil)
 
-        // 初期状態でセグメントを日付でソートするように設定
+        // 初期状態は日付でソート
         segmentedControl.selectedSegmentIndex = 0
         sortItems(segmentedControl)
     }
 
-    // UserDefaultsから購入済みアイテムをロード
+    // UserDefaultsから購入済みアイテムを読み込む
     private func loadPurchasedItems() {
         let defaults = UserDefaults.standard
         if let data = defaults.data(forKey: "purchasedItems"),
@@ -40,11 +42,18 @@ class PurchasedItemsViewController: UITableViewController {
         tableView.reloadData()
     }
 
+    // 購入済みアイテムを保存
+    private func savePurchasedItems() {
+        let defaults = UserDefaults.standard
+        if let data = try? JSONEncoder().encode(purchasedItems) {
+            defaults.set(data, forKey: "purchasedItems")
+        }
+    }
+
     // セグメントコントロールに応じたソート処理
     @IBAction func sortItems(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
-        case 0:
-            // 日付でソート
+        case 0:  // 日付でソート
             purchasedItems.sort {  // items 配列をソート
                 if let date1 = $0.purchaseDate, let date2 = $1.purchaseDate {
                     return date1 < date2
@@ -52,11 +61,9 @@ class PurchasedItemsViewController: UITableViewController {
                     return $0.purchaseDate != nil
                 }
             }
-        case 1:
-            // カテゴリでソート
+        case 1:  // カテゴリでソート
             purchasedItems.sort { $0.category < $1.category }
-        case 2:
-            // 名前でソート
+        case 2:  // 名前でソート
             purchasedItems.sort { $0.name.localizedCompare($1.name) == .orderedAscending }
         default:
             break
@@ -76,15 +83,15 @@ class PurchasedItemsViewController: UITableViewController {
 
         // カテゴリ名の1文字目だけを表示
         item.category = String(item.category.prefix(1))
-
         cell.configure(item: item)
+
         return cell
     }
 
-    // スワイプでアイテムを削除する処理を追加
+    // スワイプでアイテムを削除する処理
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            // 購入済みアイテムリストからアイテムを削除
+            // 購入済みアイテムリストから削除
             purchasedItems.remove(at: indexPath.row)
 
             // UserDefaultsに変更後のデータを保存
@@ -92,14 +99,6 @@ class PurchasedItemsViewController: UITableViewController {
 
             // テーブルから行を削除
             tableView.deleteRows(at: [indexPath], with: .automatic)
-        }
-    }
-
-    // 購入済みアイテムを保存
-    private func savePurchasedItems() {
-        let defaults = UserDefaults.standard
-        if let data = try? JSONEncoder().encode(purchasedItems) {
-            defaults.set(data, forKey: "purchasedItems")
         }
     }
 
