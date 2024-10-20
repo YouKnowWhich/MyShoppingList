@@ -27,9 +27,6 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate {
         }
     }
 
-    // 編集対象のセルのインデックスパス
-    private var editIndexPath: IndexPath?
-
     // 未購入アイテムリスト
     private var items: [Item] = [] {
         didSet {
@@ -45,6 +42,9 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate {
             NotificationCenter.default.post(name: NSNotification.Name("PurchasedItemsUpdated"), object: nil)
         }
     }
+
+    // 編集対象のセルのインデックスパス
+    private var editIndexPath: IndexPath?
 
     @IBOutlet weak var segmentedControl: UISegmentedControl!
 
@@ -98,13 +98,7 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate {
     @IBAction func sortItems(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
         case 0:  // 日付でソート
-            items.sort {
-                if let date1 = $0.purchaseDate, let date2 = $1.purchaseDate {
-                    return date1 < date2
-                } else {
-                    return $0.purchaseDate != nil
-                }
-            }
+            items.sort { ($0.purchaseDate ?? Date.distantPast) < ($1.purchaseDate ?? Date.distantPast) }
         case 1:  // カテゴリでソート
             items.sort { $0.category < $1.category }
         case 2:  // 名前でソート
@@ -115,6 +109,7 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate {
         tableView.reloadData()
     }
 
+    // MARK: - テーブルビューのデータソース
 
     // 行数を返す
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -134,16 +129,10 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate {
         return cell
     }
 
+    // MARK: - テーブルビューのアクション
+
     // アイテムをチェック済みにして購入リストへ移動
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        var selectedItem = items[indexPath.row]
-        selectedItem.isChecked = true
-        purchasedItems.append(selectedItem)
-        items.remove(at: indexPath.row)
-        tableView.deleteRows(at: [indexPath], with: .automatic)
-
-        // 購入済みアイテムを保存
-        savePurchasedItems()
     }
 
     // セルのアクセサリボタンがタップされたときの処理
@@ -214,9 +203,13 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate {
 
         if selectedItem.isChecked {
             purchasedItems.append(selectedItem)
-            items.remove(at: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .automatic)
-            savePurchasedItems()
+
+            // 0.5秒の遅延をかけてテーブルから削除する
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                self.items.remove(at: indexPath.row)
+                self.tableView.deleteRows(at: [indexPath], with: .automatic)
+                self.savePurchasedItems()
+            }
         }
     }
 }

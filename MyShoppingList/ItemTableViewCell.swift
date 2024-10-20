@@ -55,6 +55,10 @@ class ItemTableViewCell: UITableViewCell {
     @IBAction func toggleCheck(_ sender: UIButton) {
         isChecked.toggle()
         updateCheckBox()
-        delegate?.didToggleCheck(for: self)  // デリゲートを通じてチェック状態を通知
+
+        // 0.5秒の遅延をかけてデリゲートメソッドを呼び出す
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            self.delegate?.didToggleCheck(for: self)
+        }
     }
 }
