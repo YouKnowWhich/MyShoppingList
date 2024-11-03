@@ -8,58 +8,62 @@
 
 import UIKit
 
-// セル内のチェックボックスがトグルされたことを通知するためのデリゲートプロトコル
+// チェックボックスのトグルを通知するデリゲートプロトコル
 protocol ItemTableViewCellDelegate: AnyObject {
     func didToggleCheck(for cell: ItemTableViewCell)
 }
 
-// カスタムテーブルビューセルクラス
+// アイテム情報を表示するカスタムセル
 class ItemTableViewCell: UITableViewCell {
+
+    // MARK: - アウトレット
     @IBOutlet weak var checkBoxButton: UIButton!
     @IBOutlet weak var purchaseDateLabel: UILabel!
     @IBOutlet weak var categoryLabel: UILabel!
     @IBOutlet weak var nameLabel: UILabel!
 
-    weak var delegate: ItemTableViewCellDelegate?  // デリゲートを弱参照で保持
-    private var isChecked: Bool = false  // アイテムのチェック状態を保持
+    // MARK: - プロパティ
+    weak var delegate: ItemTableViewCellDelegate?  // デリゲート（弱参照）
+    private var isChecked: Bool = false            // チェック状態
 
-    // 日付フォーマッタ（キャッシュして再利用）
+    // 日付フォーマッタ
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .short
         return formatter
     }()
 
-    // アイテムのデータを用いてセルを設定
-    func configure(item: TableViewController.Item) {
+    // MARK: - セル設定
+
+    // アイテムデータでセルを設定
+    func configure(with item: TableViewController.Item) {
         isChecked = item.isChecked
-        updateCheckBoxAppearance(isChecked: isChecked)
+        updateCheckBoxAppearance()
 
-        // 購入日を設定。データがなければ "No Date" を表示
-        if let purchaseDate = item.purchaseDate {
-            purchaseDateLabel.text = Self.dateFormatter.string(from: purchaseDate)
-        } else {
-            purchaseDateLabel.text = "No Date"
-        }
+        // 購入日ラベルの設定
+        purchaseDateLabel.text = item.purchaseDate != nil ? Self.dateFormatter.string(from: item.purchaseDate!) : "No Date"
 
-        // カテゴリと名前の表示
+        // カテゴリと名前の設定
         categoryLabel.text = item.category
         nameLabel.text = item.name
     }
-    // チェックボックスの状態をUIに反映
-    private func updateCheckBoxAppearance(isChecked: Bool) {
+
+    // MARK: - UI更新
+
+    // チェックボックスの見た目を更新
+    private func updateCheckBoxAppearance() {
         let checkBoxImage = isChecked ? UIImage(systemName: "checkmark.square") : UIImage(systemName: "square")
-        UIView.transition(with: checkBoxButton, duration: 0.2, options: .transitionCrossDissolve, animations: {
+        UIView.transition(with: checkBoxButton, duration: 0.2, options: .transitionCrossDissolve) {
             self.checkBoxButton.setImage(checkBoxImage, for: .normal)
-        }, completion: nil)
+        }
     }
+
+    // MARK: - アクション
 
     // チェックボックスがタップされたときに呼ばれるアクション
     @IBAction func toggleCheck(_ sender: UIButton) {
         isChecked.toggle()
-        updateCheckBoxAppearance(isChecked: isChecked)
-
-        // デリゲートメソッドの呼び出し
-        delegate?.didToggleCheck(for: self)
+        updateCheckBoxAppearance()
+        delegate?.didToggleCheck(for: self)  // デリゲート呼び出し
     }
 }

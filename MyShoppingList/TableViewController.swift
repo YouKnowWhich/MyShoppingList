@@ -22,18 +22,17 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
         var category: String
         var purchaseDate: Date?
 
-        // チェック状態を反転させる
         mutating func toggleIsChecked() {
             isChecked.toggle()
         }
     }
 
-    // 未購入アイテムリスト
+    // 未購入アイテムリスト（変更があれば保存）
     private var items: [Item] = [] {
         didSet { saveItems() }
     }
 
-    // 購入済みアイテムリスト
+    // 購入済みアイテムリスト（変更があれば保存し、更新通知を送信）
     private var purchasedItems: [Item] = [] {
         didSet {
             savePurchasedItems()
@@ -64,14 +63,13 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
         loadPurchasedItems()
     }
 
+    // タブバーの購入済みアイテムビューのデリゲート設定
     private func setupPurchasedItemsDelegate() {
-        if let tabBarController = self.tabBarController,
-           let viewControllers = tabBarController.viewControllers {
-            for viewController in viewControllers {
-                if let navController = viewController as? UINavigationController,
-                   let purchasedItemsVC = navController.topViewController as? PurchasedItemsViewController {
-                    purchasedItemsVC.delegate = self
-                }
+        guard let viewControllers = tabBarController?.viewControllers else { return }
+        for viewController in viewControllers {
+            if let navController = viewController as? UINavigationController,
+               let purchasedItemsVC = navController.topViewController as? PurchasedItemsViewController {
+                purchasedItemsVC.delegate = self
             }
         }
     }
@@ -79,30 +77,24 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
     // MARK: - UserDefaults 保存/読み込み処理
 
     private func saveItems() {
-        let defaults = UserDefaults.standard
-        if let data = try? JSONEncoder().encode(items) {
-            defaults.set(data, forKey: keyItems)
-        }
+        guard let data = try? JSONEncoder().encode(items) else { return }
+        UserDefaults.standard.set(data, forKey: keyItems)
     }
 
     private func savePurchasedItems() {
-        let defaults = UserDefaults.standard
-        if let data = try? JSONEncoder().encode(purchasedItems) {
-            defaults.set(data, forKey: keyPurchasedItems)
-        }
+        guard let data = try? JSONEncoder().encode(purchasedItems) else { return }
+        UserDefaults.standard.set(data, forKey: keyPurchasedItems)
     }
 
     private func loadItems() {
-        let defaults = UserDefaults.standard
-        if let data = defaults.data(forKey: keyItems),
+        if let data = UserDefaults.standard.data(forKey: keyItems),
            let savedItems = try? JSONDecoder().decode([Item].self, from: data) {
             items = savedItems
         }
     }
 
     private func loadPurchasedItems() {
-        let defaults = UserDefaults.standard
-        if let data = defaults.data(forKey: keyPurchasedItems),
+        if let data = UserDefaults.standard.data(forKey: keyPurchasedItems),
            let savedItems = try? JSONDecoder().decode([Item].self, from: data) {
             purchasedItems = savedItems
         }
@@ -136,16 +128,15 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
         // カテゴリ名の先頭1文字だけを表示
         item.category = String(item.category.prefix(1))
 
-        cell.configure(item: item)
+        cell.configure(with: item)
         cell.delegate = self
         return cell
     }
 
     // MARK: - テーブルビューのアクション
-    // セルのアクセサリボタンがタップされたときの処理
+    // アクセサリボタンタップ時の処理（編集画面への遷移）
     override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
         editIndexPath = indexPath
-        print("editIndexPath set to: \(editIndexPath)")  // デバッグ出力
         performSegue(withIdentifier: "EditSegue", sender: indexPath)
     }
 
@@ -163,11 +154,9 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
     }
 
     @IBAction func exitFromAddBySave(segue: UIStoryboardSegue) {
-        if let add = segue.source as? AddItemViewController,
-           let item = add.editedItem {
+        if let addVC = segue.source as? AddItemViewController, let item = addVC.editedItem {
             items.append(item)
-            let indexPath = IndexPath(row: items.count - 1, section: 0)
-            tableView.insertRows(at: [indexPath], with: .automatic)
+            tableView.insertRows(at: [IndexPath(row: items.count - 1, section: 0)], with: .automatic)
         }
     }
 
@@ -175,12 +164,10 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
     }
 
     @IBAction func exitFromEditBySave(segue: UIStoryboardSegue) {
-        if let add = segue.source as? AddItemViewController,
-           let editedItem = add.editedItem,
-           let indexPath = editIndexPath {
+        if let addVC = segue.source as? AddItemViewController, let editedItem = addVC.editedItem, let indexPath = editIndexPath {
             items[indexPath.row] = editedItem
             tableView.reloadRows(at: [indexPath], with: .automatic)
-            editIndexPath = nil  // リセット
+            editIndexPath = nil
         }
     }
 
@@ -227,14 +214,15 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
         savePurchasedItems()
     }
 
+    // セグエの準備処理
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if let add = (segue.destination as? UINavigationController)?.topViewController as? AddItemViewController {
+        if let addVC = (segue.destination as? UINavigationController)?.topViewController as? AddItemViewController {
             switch segue.identifier ?? "" {
             case "AddSegue":
-                add.mode = .add
+                addVC.mode = .add
             case "EditSegue":
                 if let indexPath = sender as? IndexPath {
-                    add.mode = .edit(items[indexPath.row])
+                    addVC.mode = .edit(items[indexPath.row])
                 }
             default:
                 break
