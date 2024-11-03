@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TableViewController: UITableViewController, ItemTableViewCellDelegate {
+class TableViewController: UITableViewController, ItemTableViewCellDelegate, PurchasedItemsViewControllerDelegate {
 
     // UserDefaultsのキー
     private let keyItems = "items"  // 未購入アイテム
@@ -16,6 +16,7 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate {
 
     // アイテムのデータモデル
     struct Item: Codable {
+        var id: UUID
         var name: String
         var isChecked: Bool
         var category: String
@@ -29,17 +30,25 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate {
 
     // 未購入アイテムリスト
     private var items: [Item] = [] {
-        didSet {
-            saveItems()  // UserDefaultsに保存
-        }
+        didSet { saveItems() }
     }
 
     // 購入済みアイテムリスト
     private var purchasedItems: [Item] = [] {
         didSet {
-            savePurchasedItems()  // 購入済みアイテムを保存
-            // 購入済みリスト画面に更新を通知
+            savePurchasedItems()
             NotificationCenter.default.post(name: NSNotification.Name("PurchasedItemsUpdated"), object: nil)
+        }
+    }
+
+    // アイテムを未購入リストに戻す
+    func addItemBackToShoppingList(item: Item) {
+        var newItem = item
+        newItem.isChecked = false
+        if !items.contains(where: { $0.id == newItem.id }) {
+            items.append(newItem)
+            saveItems()
+            tableView.reloadData()  // テーブルビューをリロードしてアイテムを反映
         }
     }
 
@@ -50,9 +59,21 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadItems()  // 未購入アイテムの読み込み
-        loadPurchasedItems()  // 購入済みアイテムの読み込み
-        NotificationCenter.default.addObserver(self, selector: #selector(reloadTable), name: NSNotification.Name("PurchasedItemsUpdated"), object: nil)
+        setupPurchasedItemsDelegate()
+        loadItems()
+        loadPurchasedItems()
+    }
+
+    private func setupPurchasedItemsDelegate() {
+        if let tabBarController = self.tabBarController,
+           let viewControllers = tabBarController.viewControllers {
+            for viewController in viewControllers {
+                if let navController = viewController as? UINavigationController,
+                   let purchasedItemsVC = navController.topViewController as? PurchasedItemsViewController {
+                    purchasedItemsVC.delegate = self
+                }
+            }
+        }
     }
 
     // MARK: - UserDefaults 保存/読み込み処理
@@ -89,22 +110,13 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate {
 
     // MARK: - テーブルビュー操作
 
-    // テーブルリロード処理
-    @objc private func reloadTable() {
-        tableView.reloadData()
-    }
-
     // セグメントコントロールによるソート処理
     @IBAction func sortItems(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
-        case 0:  // 日付でソート
-            items.sort { ($0.purchaseDate ?? Date.distantPast) < ($1.purchaseDate ?? Date.distantPast) }
-        case 1:  // カテゴリでソート
-            items.sort { $0.category < $1.category }
-        case 2:  // 名前でソート
-            items.sort { $0.name.localizedCompare($1.name) == .orderedAscending }
-        default:
-            break
+        case 0: items.sort { ($0.purchaseDate ?? Date.distantPast) < ($1.purchaseDate ?? Date.distantPast) }
+        case 1: items.sort { $0.category < $1.category }
+        case 2: items.sort { $0.name.localizedCompare($1.name) == .orderedAscending }
+        default: break
         }
         tableView.reloadData()
     }
@@ -130,14 +142,10 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate {
     }
 
     // MARK: - テーブルビューのアクション
-
-    // アイテムをチェック済みにして購入リストへ移動
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    }
-
     // セルのアクセサリボタンがタップされたときの処理
     override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
         editIndexPath = indexPath
+        print("editIndexPath set to: \(editIndexPath)")  // デバッグ出力
         performSegue(withIdentifier: "EditSegue", sender: indexPath)
     }
 
@@ -150,21 +158,6 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate {
     }
 
     // MARK: - セグエと画面遷移
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if let add = (segue.destination as? UINavigationController)?.topViewController as? AddItemViewController {
-            switch segue.identifier ?? "" {
-            case "AddSegue":
-                add.mode = .add
-            case "EditSegue":
-                if let indexPath = sender as? IndexPath {
-                    add.mode = .edit(items[indexPath.row])
-                }
-            default:
-                break
-            }
-        }
-    }
 
     @IBAction func exitFromAddByCancel(segue: UIStoryboardSegue) {
     }
@@ -187,6 +180,7 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate {
            let indexPath = editIndexPath {
             items[indexPath.row] = editedItem
             tableView.reloadRows(at: [indexPath], with: .automatic)
+            editIndexPath = nil  // リセット
         }
     }
 
@@ -197,19 +191,55 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
 
         var selectedItem = items[indexPath.row]
-        selectedItem.isChecked.toggle()
+        selectedItem.toggleIsChecked()
 
         items[indexPath.row] = selectedItem
 
         if selectedItem.isChecked {
-            purchasedItems.append(selectedItem)
+            moveToPurchasedItems(item: selectedItem, at: indexPath)
+        } else {
+            moveToShoppingList(item: selectedItem)
+        }
+    }
 
-            // 0.5秒の遅延をかけてテーブルから削除する
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                self.items.remove(at: indexPath.row)
-                self.tableView.deleteRows(at: [indexPath], with: .automatic)
-                self.savePurchasedItems()
+    private func moveToPurchasedItems(item: Item, at indexPath: IndexPath) {
+        if !purchasedItems.contains(where: { $0.id == item.id }) {
+            purchasedItems.append(item)
+        }
+        items.remove(at: indexPath.row)
+        saveData()
+        tableView.deleteRows(at: [indexPath], with: .automatic)
+    }
+
+    private func moveToShoppingList(item: Item) {
+        if !items.contains(where: { $0.id == item.id }) {
+            items.append(item)
+        }
+        if let index = purchasedItems.firstIndex(where: { $0.id == item.id }) {
+            purchasedItems.remove(at: index)
+        }
+        saveData()
+        tableView.reloadData()
+    }
+
+    private func saveData() {
+        saveItems()
+        savePurchasedItems()
+    }
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let add = (segue.destination as? UINavigationController)?.topViewController as? AddItemViewController {
+            switch segue.identifier ?? "" {
+            case "AddSegue":
+                add.mode = .add
+            case "EditSegue":
+                if let indexPath = sender as? IndexPath {
+                    add.mode = .edit(items[indexPath.row])
+                }
+            default:
+                break
             }
         }
     }
 }
+

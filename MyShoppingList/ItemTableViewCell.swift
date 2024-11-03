@@ -23,16 +23,21 @@ class ItemTableViewCell: UITableViewCell {
     weak var delegate: ItemTableViewCellDelegate?  // デリゲートを弱参照で保持
     private var isChecked: Bool = false  // アイテムのチェック状態を保持
 
+    // 日付フォーマッタ（キャッシュして再利用）
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        return formatter
+    }()
+
     // アイテムのデータを用いてセルを設定
     func configure(item: TableViewController.Item) {
         isChecked = item.isChecked
-        updateCheckBox()
+        updateCheckBoxAppearance(isChecked: isChecked)
 
-        // 購入日があれば表示、なければ "No Date" を表示
+        // 購入日を設定。データがなければ "No Date" を表示
         if let purchaseDate = item.purchaseDate {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "M/d"
-            purchaseDateLabel.text = dateFormatter.string(from: purchaseDate)
+            purchaseDateLabel.text = Self.dateFormatter.string(from: purchaseDate)
         } else {
             purchaseDateLabel.text = "No Date"
         }
@@ -42,23 +47,19 @@ class ItemTableViewCell: UITableViewCell {
         nameLabel.text = item.name
     }
     // チェックボックスの状態をUIに反映
-    private func updateCheckBox() {
-        guard let checkBoxButton = checkBoxButton else {
-            print("checkBoxButtonがnilです")
-            return
-        }
+    private func updateCheckBoxAppearance(isChecked: Bool) {
         let checkBoxImage = isChecked ? UIImage(systemName: "checkmark.square") : UIImage(systemName: "square")
-        checkBoxButton.setImage(checkBoxImage, for: .normal)
+        UIView.transition(with: checkBoxButton, duration: 0.2, options: .transitionCrossDissolve, animations: {
+            self.checkBoxButton.setImage(checkBoxImage, for: .normal)
+        }, completion: nil)
     }
 
     // チェックボックスがタップされたときに呼ばれるアクション
     @IBAction func toggleCheck(_ sender: UIButton) {
         isChecked.toggle()
-        updateCheckBox()
+        updateCheckBoxAppearance(isChecked: isChecked)
 
-        // 0.5秒の遅延をかけてデリゲートメソッドを呼び出す
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            self.delegate?.didToggleCheck(for: self)
-        }
+        // デリゲートメソッドの呼び出し
+        delegate?.didToggleCheck(for: self)
     }
 }

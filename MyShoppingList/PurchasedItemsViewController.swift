@@ -8,16 +8,23 @@
 
 import UIKit
 
-class PurchasedItemsViewController: UITableViewController {
+// PurchasedItemsViewControllerDelegate プロトコル
+protocol PurchasedItemsViewControllerDelegate: AnyObject {
+    func addItemBackToShoppingList(item: TableViewController.Item)
+}
 
-    // 購入済みアイテムリスト
+class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDelegate {
+
     private var purchasedItems: [TableViewController.Item] = []
+    weak var delegate: PurchasedItemsViewControllerDelegate?
 
     @IBOutlet weak var segmentedControl: UISegmentedControl!
 
+    private let purchasedItemsKey = "purchasedItems"
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadPurchasedItems()  // 購入済みアイテムを読み込む
+        loadPurchasedItems()
 
         // 購入済みアイテムの更新を監視
         NotificationCenter.default.addObserver(self, selector: #selector(reloadPurchasedItems), name: NSNotification.Name("PurchasedItemsUpdated"), object: nil)
@@ -27,40 +34,71 @@ class PurchasedItemsViewController: UITableViewController {
         sortItems(segmentedControl)
     }
 
-    // UserDefaultsから購入済みアイテムを読み込む
+    // MARK: - デリゲートメソッド
+
+    // チェックボックスが切り替えられたときに呼ばれる
+    func didToggleCheck(for cell: ItemTableViewCell) {
+        guard let indexPath = tableView.indexPath(for: cell) else { return }
+
+        var selectedItem = purchasedItems[indexPath.row]
+        selectedItem.isChecked.toggle()
+
+        // チェックを外した場合
+        if !selectedItem.isChecked {
+            purchasedItems.remove(at: indexPath.row)      // アイテムを購入済みリストから削除
+            savePurchasedItems()                          // 保存
+
+            // テーブルから行を削除
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+
+            // デリゲートを介して未購入リストに追加
+            if let delegate = delegate {
+                delegate.addItemBackToShoppingList(item: selectedItem)
+            } else {
+                print("Error: PurchasedItemsViewControllerDelegate is not set. Ensure that the delegate is assigned in TableViewController.")
+            }
+        }
+    }
+
+    // MARK: - UserDefaults操作
     private func loadPurchasedItems() {
-        let defaults = UserDefaults.standard
-        if let data = defaults.data(forKey: "purchasedItems"),
-           let savedItems = try? JSONDecoder().decode([TableViewController.Item].self, from: data) {
-            purchasedItems = savedItems
+        DispatchQueue.global().async { [weak self] in
+            guard let self = self else { return }
+            let defaults = UserDefaults.standard
+            if let data = defaults.data(forKey: self.purchasedItemsKey),
+               let savedItems = try? JSONDecoder().decode([TableViewController.Item].self, from: data) {
+                DispatchQueue.main.async {
+                    self.purchasedItems = savedItems
+                    self.tableView.reloadData()
+                }
+            }
         }
     }
 
     // 購入済みアイテムリストをリロード
     @objc func reloadPurchasedItems() {
         loadPurchasedItems()
-        tableView.reloadData()
     }
 
     // 購入済みアイテムを保存
     private func savePurchasedItems() {
-        let defaults = UserDefaults.standard
-        if let data = try? JSONEncoder().encode(purchasedItems) {
-            defaults.set(data, forKey: "purchasedItems")
+        DispatchQueue.global().async { [weak self] in
+            guard let self = self else { return }
+            let defaults = UserDefaults.standard
+            do {
+                let data = try JSONEncoder().encode(self.purchasedItems)
+                defaults.set(data, forKey: self.purchasedItemsKey)
+            } catch {
+                print("Failed to save purchased items: \(error.localizedDescription)")
+            }
         }
     }
 
-    // セグメントコントロールに応じたソート処理
+    // MARK: - ソート処理
     @IBAction func sortItems(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
         case 0:  // 日付でソート
-            purchasedItems.sort {  // items 配列をソート
-                if let date1 = $0.purchaseDate, let date2 = $1.purchaseDate {
-                    return date1 < date2
-                } else {
-                    return $0.purchaseDate != nil
-                }
-            }
+            purchasedItems.sort { ($0.purchaseDate ?? Date.distantPast) < ($1.purchaseDate ?? Date.distantPast) }
         case 1:  // カテゴリでソート
             purchasedItems.sort { $0.category < $1.category }
         case 2:  // 名前でソート
@@ -71,19 +109,18 @@ class PurchasedItemsViewController: UITableViewController {
         tableView.reloadData()
     }
 
-    // テーブルの行数を返す
+    // MARK: - テーブルビュー データソース
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return purchasedItems.count
     }
 
-    // 各セルに購入済みアイテムを設定
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell1", for: indexPath) as! ItemTableViewCell
         var item = purchasedItems[indexPath.row]
 
-        // カテゴリ名の1文字目だけを表示
         item.category = String(item.category.prefix(1))
         cell.configure(item: item)
+        cell.delegate = self
 
         return cell
     }
@@ -91,19 +128,14 @@ class PurchasedItemsViewController: UITableViewController {
     // スワイプでアイテムを削除する処理
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            // 購入済みアイテムリストから削除
             purchasedItems.remove(at: indexPath.row)
-
-            // UserDefaultsに変更後のデータを保存
             savePurchasedItems()
-
-            // テーブルから行を削除
             tableView.deleteRows(at: [indexPath], with: .automatic)
         }
     }
 
     // クラス解放時にObserverを解除
     deinit {
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("PurchasedItemsUpdated"), object: nil)
+        NotificationCenter.default.removeObserver(self)
     }
 }

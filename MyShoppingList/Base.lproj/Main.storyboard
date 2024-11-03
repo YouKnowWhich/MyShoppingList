@@ -91,7 +91,7 @@
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="＋"/>
                                 <connections>
-                                    <segue destination="aPY-RD-Iad" kind="presentation" identifier="AddSegue" id="qjc-rX-eVE"/>
+                                    <segue destination="aPY-RD-Iad" kind="presentation" identifier="AddSegue" id="Dqg-jB-WX4"/>
                                 </connections>
                             </button>
                         </barButtonItem>
@@ -109,6 +109,7 @@
         <scene sceneID="i7c-zZ-jTm">
             <objects>
                 <navigationController id="aPY-RD-Iad" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" id="ORj-zZ-bua"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="pY9-pg-pik">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="56"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -196,6 +197,7 @@
                         <outlet property="categoryPickerView" destination="Olv-W3-fUG" id="wuZ-LD-HKa"/>
                         <outlet property="datePicker" destination="1tI-On-lPq" id="Bjp-c0-CGD"/>
                         <outlet property="nameTextField" destination="4c9-ta-jO6" id="38e-De-UIo"/>
+                        <outlet property="saveButton" destination="DAY-fD-eyI" id="pWD-8N-8xt"/>
                         <segue destination="mHa-zR-ntr" kind="unwind" identifier="exitFromEditBySaveSegue" unwindAction="exitFromEditBySaveWithSegue:" id="wpJ-kS-AOn"/>
                         <segue destination="mHa-zR-ntr" kind="unwind" identifier="exitFromEditByCancelSegue" unwindAction="exitFromEditByCancelWithSegue:" id="zB1-fc-g3M"/>
                         <segue destination="mHa-zR-ntr" kind="unwind" identifier="exitFromAddBySaveSegue" unwindAction="exitFromAddBySaveWithSegue:" id="CRF-5x-Ahl"/>
@@ -225,11 +227,11 @@
             </objects>
             <point key="canvasLocation" x="-963" y="325"/>
         </scene>
-        <!--Item-->
+        <!--□買い物リスト-->
         <scene sceneID="cr1-wT-cSJ">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="cx2-4b-lkZ" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Item" id="irh-FZ-C4Y"/>
+                    <tabBarItem key="tabBarItem" title="□買い物リスト" id="irh-FZ-C4Y"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="gDt-m5-tvH">
                         <rect key="frame" x="0.0" y="59" width="393" height="44"/>
@@ -244,11 +246,11 @@
             </objects>
             <point key="canvasLocation" x="130.53435114503816" y="-27.464788732394368"/>
         </scene>
-        <!--Item-->
+        <!--☑購入済リスト-->
         <scene sceneID="c9N-kx-EGC">
             <objects>
                 <navigationController id="kaN-40-Eyl" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Item" id="Lkw-KS-1Ru"/>
+                    <tabBarItem key="tabBarItem" title="☑購入済リスト" id="Lkw-KS-1Ru"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="Ah6-ny-fse">
                         <rect key="frame" x="0.0" y="59" width="393" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -348,7 +350,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="qjc-rX-eVE"/>
+        <segue reference="rTq-9c-sJb"/>
     </inferredMetricsTieBreakers>
     <resources>
         <systemColor name="systemBackgroundColor">
