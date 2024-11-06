@@ -143,7 +143,13 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
     // セルの削除処理
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
+            // items配列からアイテムを削除
             items.remove(at: indexPath.row)
+
+            // 削除後のデータをUserDefaultsに保存
+            saveItems()
+
+            // テーブルビューから行を削除
             tableView.deleteRows(at: [indexPath], with: .automatic)
         }
     }
@@ -190,6 +196,7 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
     }
 
     private func moveToPurchasedItems(item: Item, at indexPath: IndexPath) {
+        
         if !purchasedItems.contains(where: { $0.id == item.id }) {
             purchasedItems.append(item)
         }

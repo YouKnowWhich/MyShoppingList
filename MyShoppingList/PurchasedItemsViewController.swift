@@ -37,6 +37,11 @@ class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDele
         sortItems(segmentedControl)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        reloadPurchasedItems()  // 画面表示時に最新データをリロード
+    }
+
     // クラス解放時にObserverを解除
     deinit {
         NotificationCenter.default.removeObserver(self)
@@ -52,10 +57,15 @@ class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDele
         selectedItem.isChecked.toggle()
 
         if !selectedItem.isChecked {
-            // アイテムを購入済みリストから削除し、保存
+            // アイテムを購入済みリストから削除
             purchasedItems.remove(at: indexPath.row)
+
+            // データ保存を行い、UI更新
             savePurchasedItems()
             tableView.deleteRows(at: [indexPath], with: .automatic)
+
+            // UI全体をリロードして確実に反映
+            tableView.reloadData()
 
             // 未購入リストにアイテムを戻す
             delegate?.addItemBackToShoppingList(item: selectedItem)
@@ -79,14 +89,11 @@ class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDele
     }
 
     private func savePurchasedItems() {
-        DispatchQueue.global().async { [weak self] in
-            guard let self = self else { return }
-            let defaults = UserDefaults.standard
-            if let data = try? JSONEncoder().encode(self.purchasedItems) {
-                defaults.set(data, forKey: self.purchasedItemsKey)
-            } else {
-                print("Failed to save purchased items.")
-            }
+        let defaults = UserDefaults.standard
+        if let data = try? JSONEncoder().encode(self.purchasedItems) {
+            defaults.set(data, forKey: self.purchasedItemsKey)
+        } else {
+            print("Failed to save purchased items.")
         }
     }
 
@@ -131,8 +138,13 @@ class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDele
     // スワイプでアイテムを削除する処理
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
+            // purchasedItems配列からアイテムを削除
             purchasedItems.remove(at: indexPath.row)
+
+            // 削除後のリストをUserDefaultsに保存
             savePurchasedItems()
+
+            // テーブルビューから行を削除
             tableView.deleteRows(at: [indexPath], with: .automatic)
         }
     }
