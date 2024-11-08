@@ -56,8 +56,6 @@ class AddItemViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("AddItemViewController mode is: \(mode)")  // デバッグ出力
-
         setupPickerViews()
         setupInitialValues()
         setupTextField()

@@ -8,6 +8,8 @@
 
 import UIKit
 
+// MARK: - PurchasedItemsViewControllerDelegate
+
 // 購入済みアイテムを未購入リストに戻すためのデリゲートプロトコル
 protocol PurchasedItemsViewControllerDelegate: AnyObject {
     func addItemBackToShoppingList(item: TableViewController.Item)
@@ -27,24 +29,30 @@ class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDele
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupView()
         loadPurchasedItems()
 
         // 購入済みアイテムの更新を監視し、更新時にリロードする
         NotificationCenter.default.addObserver(self, selector: #selector(reloadPurchasedItems), name: NSNotification.Name("PurchasedItemsUpdated"), object: nil)
-
-        // 初期状態は日付でソート
-        segmentedControl.selectedSegmentIndex = 0
-        sortItems(segmentedControl)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        reloadPurchasedItems()  // 画面表示時に最新データをリロード
+        loadPurchasedItems()    // 最新の購入済みアイテムを再読み込み
+        tableView.reloadData()  // テーブルビューをリロード
     }
 
     // クラス解放時にObserverを解除
     deinit {
         NotificationCenter.default.removeObserver(self)
+    }
+
+    // MARK: - 初期設定
+
+    private func setupView() {
+        // 初期状態は日付でソート
+        segmentedControl.selectedSegmentIndex = 0
+        sortItems(segmentedControl)
     }
 
     // MARK: - デリゲートメソッド
@@ -72,7 +80,7 @@ class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDele
         }
     }
 
-    // MARK: - UserDefaults操作
+    // MARK: - データ操作 (UserDefaults)
 
     private func loadPurchasedItems() {
         DispatchQueue.global().async { [weak self] in
@@ -98,7 +106,7 @@ class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDele
     }
 
     // 購入済みアイテムリストをリロード
-    @objc func reloadPurchasedItems() {
+    @objc private func reloadPurchasedItems() {
         loadPurchasedItems()
     }
 
@@ -135,14 +143,13 @@ class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDele
         return cell
     }
 
-    // スワイプでアイテムを削除する処理
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             // purchasedItems配列からアイテムを削除
             purchasedItems.remove(at: indexPath.row)
 
-            // 削除後のリストをUserDefaultsに保存
-            savePurchasedItems()
+            // UserDefaultsのデータを上書き保存
+            savePurchasedItems()  // 削除後にUserDefaultsに即時反映
 
             // テーブルビューから行を削除
             tableView.deleteRows(at: [indexPath], with: .automatic)

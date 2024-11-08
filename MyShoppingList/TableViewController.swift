@@ -10,6 +10,8 @@ import UIKit
 
 class TableViewController: UITableViewController, ItemTableViewCellDelegate, PurchasedItemsViewControllerDelegate {
 
+    // MARK: - プロパティ定義
+
     // UserDefaultsのキー
     private let keyItems = "items"  // 未購入アイテム
     private let keyPurchasedItems = "purchasedItems"  // 購入済みアイテム
@@ -40,27 +42,25 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
         }
     }
 
-    // アイテムを未購入リストに戻す
-    func addItemBackToShoppingList(item: Item) {
-        var newItem = item
-        newItem.isChecked = false
-        if !items.contains(where: { $0.id == newItem.id }) {
-            items.append(newItem)
-            saveItems()
-            tableView.reloadData()  // テーブルビューをリロードしてアイテムを反映
-        }
-    }
-
     // 編集対象のセルのインデックスパス
     private var editIndexPath: IndexPath?
 
     @IBOutlet weak var segmentedControl: UISegmentedControl!
+
+    // MARK: - ライフサイクルメソッド
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupPurchasedItemsDelegate()
         loadItems()
         loadPurchasedItems()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        loadItems()            // 最新の未購入アイテムを再読み込み
+        loadPurchasedItems()    // 最新の購入済みアイテムを再読み込み
+        tableView.reloadData()  // テーブルビューをリロード
     }
 
     // タブバーの購入済みアイテムビューのデリゲート設定
@@ -100,6 +100,64 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
         }
     }
 
+    private func saveData() {
+        saveItems()
+        savePurchasedItems()
+    }
+
+    // MARK: - アイテム操作
+
+    // アイテムを未購入リストに戻す
+    func addItemBackToShoppingList(item: Item) {
+        var newItem = item
+        newItem.isChecked = false
+        if !items.contains(where: { $0.id == newItem.id }) {
+            items.append(newItem)
+            saveItems()
+            tableView.reloadData()  // テーブルビューをリロードしてアイテムを反映
+        }
+    }
+
+    private func moveToPurchasedItems(item: Item, at indexPath: IndexPath) {
+        if !purchasedItems.contains(where: { $0.id == item.id }) {
+            purchasedItems.append(item)
+        }
+        items.remove(at: indexPath.row)
+        saveData()
+        tableView.deleteRows(at: [indexPath], with: .automatic)
+    }
+
+    private func moveToShoppingList(item: Item) {
+        if !items.contains(where: { $0.id == item.id }) {
+            items.append(item)
+        }
+        if let index = purchasedItems.firstIndex(where: { $0.id == item.id }) {
+            purchasedItems.remove(at: index)
+        }
+        saveData()
+        tableView.reloadData()
+    }
+
+    // MARK: - デリゲートメソッド
+
+    // チェックボックスが切り替えられたときの処理
+    func didToggleCheck(for cell: ItemTableViewCell) {
+        guard let indexPath = tableView.indexPath(for: cell) else { return }
+
+        var selectedItem = items[indexPath.row]
+        selectedItem.toggleIsChecked()
+        items[indexPath.row] = selectedItem
+
+        if selectedItem.isChecked {
+            moveToPurchasedItems(item: selectedItem, at: indexPath)
+        } else {
+            moveToShoppingList(item: selectedItem)
+        }
+
+        // UserDefaultsに変更を保存
+        saveData()
+    }
+
     // MARK: - テーブルビュー操作
 
     // セグメントコントロールによるソート処理
@@ -125,9 +183,7 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell1", for: indexPath) as! ItemTableViewCell
         var item = items[indexPath.row]
 
-        // カテゴリ名の先頭1文字だけを表示
         item.category = String(item.category.prefix(1))
-
         cell.configure(with: item)
         cell.delegate = self
         return cell
@@ -146,8 +202,8 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
             // items配列からアイテムを削除
             items.remove(at: indexPath.row)
 
-            // 削除後のデータをUserDefaultsに保存
-            saveItems()
+            // UserDefaultsのデータを上書き保存
+            saveItems()  // 削除後にUserDefaultsに即時反映
 
             // テーブルビューから行を削除
             tableView.deleteRows(at: [indexPath], with: .automatic)
@@ -155,6 +211,22 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
     }
 
     // MARK: - セグエと画面遷移
+
+    // セグエの準備処理
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let addVC = (segue.destination as? UINavigationController)?.topViewController as? AddItemViewController {
+            switch segue.identifier ?? "" {
+            case "AddSegue":
+                addVC.mode = .add
+            case "EditSegue":
+                if let indexPath = sender as? IndexPath {
+                    addVC.mode = .edit(items[indexPath.row])
+                }
+            default:
+                break
+            }
+        }
+    }
 
     @IBAction func exitFromAddByCancel(segue: UIStoryboardSegue) {
     }
@@ -174,66 +246,6 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
             items[indexPath.row] = editedItem
             tableView.reloadRows(at: [indexPath], with: .automatic)
             editIndexPath = nil
-        }
-    }
-
-    // MARK: - デリゲートメソッド
-
-    // チェックボックスが切り替えられたときの処理
-    func didToggleCheck(for cell: ItemTableViewCell) {
-        guard let indexPath = tableView.indexPath(for: cell) else { return }
-
-        var selectedItem = items[indexPath.row]
-        selectedItem.toggleIsChecked()
-
-        items[indexPath.row] = selectedItem
-
-        if selectedItem.isChecked {
-            moveToPurchasedItems(item: selectedItem, at: indexPath)
-        } else {
-            moveToShoppingList(item: selectedItem)
-        }
-    }
-
-    private func moveToPurchasedItems(item: Item, at indexPath: IndexPath) {
-        
-        if !purchasedItems.contains(where: { $0.id == item.id }) {
-            purchasedItems.append(item)
-        }
-        items.remove(at: indexPath.row)
-        saveData()
-        tableView.deleteRows(at: [indexPath], with: .automatic)
-    }
-
-    private func moveToShoppingList(item: Item) {
-        if !items.contains(where: { $0.id == item.id }) {
-            items.append(item)
-        }
-        if let index = purchasedItems.firstIndex(where: { $0.id == item.id }) {
-            purchasedItems.remove(at: index)
-        }
-        saveData()
-        tableView.reloadData()
-    }
-
-    private func saveData() {
-        saveItems()
-        savePurchasedItems()
-    }
-
-    // セグエの準備処理
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if let addVC = (segue.destination as? UINavigationController)?.topViewController as? AddItemViewController {
-            switch segue.identifier ?? "" {
-            case "AddSegue":
-                addVC.mode = .add
-            case "EditSegue":
-                if let indexPath = sender as? IndexPath {
-                    addVC.mode = .edit(items[indexPath.row])
-                }
-            default:
-                break
-            }
         }
     }
 }
