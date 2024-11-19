@@ -29,7 +29,8 @@ class ItemTableViewCell: UITableViewCell {
     // 日付フォーマッタ
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateStyle = .short
+        formatter.locale = Locale.current // ユーザーのロケールを使用
+        formatter.setLocalizedDateFormatFromTemplate("Md") // 月と日のみを表示
         return formatter
     }()
 
