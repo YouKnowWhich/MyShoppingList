@@ -38,6 +38,18 @@ class ItemTableViewCell: UITableViewCell {
 
     // アイテムデータでセルを設定
     func configure(with item: TableViewController.Item) {
+        nameLabel.font = UIFont.preferredFont(forTextStyle: .body)
+        categoryLabel.font = UIFont.preferredFont(forTextStyle: .subheadline)
+        purchaseDateLabel.font = UIFont.preferredFont(forTextStyle: .footnote)
+
+        nameLabel.adjustsFontForContentSizeCategory = true
+        categoryLabel.adjustsFontForContentSizeCategory = true
+        purchaseDateLabel.adjustsFontForContentSizeCategory = true
+
+        // 複数行対応
+        nameLabel.numberOfLines = 0
+        nameLabel.lineBreakMode = .byWordWrapping
+
         isChecked = item.isChecked
         updateCheckBoxAppearance()
 

@@ -32,6 +32,9 @@ class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDele
         setupView()
         loadPurchasedItems()
 
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 44 // 適切な推定値を設定
+
         // 購入済みアイテムの更新を監視し、更新時にリロードする
         NotificationCenter.default.addObserver(self, selector: #selector(reloadPurchasedItems), name: NSNotification.Name("PurchasedItemsUpdated"), object: nil)
     }
@@ -154,5 +157,28 @@ class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDele
             // テーブルビューから行を削除
             tableView.deleteRows(at: [indexPath], with: .automatic)
         }
+    }
+
+    // MARK: - 全削除ボタンのアクション
+    @IBAction func deleteAllPurchasedItems(_ sender: UIBarButtonItem) {
+        let alert = UIAlertController(
+            title: "確認",
+            message: "すべての購入済みアイテムを削除しますか？",
+            preferredStyle: .alert
+        )
+
+        alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
+        alert.addAction(UIAlertAction(title: "削除", style: .destructive) { [weak self] _ in
+            guard let self = self else { return }
+
+            // 購入済みリストを空にする
+            self.purchasedItems.removeAll()
+            UserDefaults.standard.removeObject(forKey: self.purchasedItemsKey) // UserDefaultsから削除
+
+            // テーブルビューをリロード
+            self.tableView.reloadData()
+        })
+
+        present(alert, animated: true)
     }
 }

@@ -54,6 +54,9 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
         setupPurchasedItemsDelegate()
         loadItems()
         loadPurchasedItems()
+
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 44 // 適切な推定値を設定
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -247,6 +250,29 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
             tableView.reloadRows(at: [indexPath], with: .automatic)
             editIndexPath = nil
         }
+    }
+
+    // MARK: - 全削除ボタンのアクション
+    @IBAction func deleteAllItems(_ sender: UIBarButtonItem) {
+        let alert = UIAlertController(
+            title: "確認",
+            message: "すべてのアイテムを削除しますか？",
+            preferredStyle: .alert
+        )
+
+        alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
+        alert.addAction(UIAlertAction(title: "削除", style: .destructive) { [weak self] _ in
+            guard let self = self else { return }
+
+            // アイテムリストを空にする
+            self.items.removeAll()
+            UserDefaults.standard.removeObject(forKey: self.keyItems) // UserDefaultsから削除
+
+            // テーブルビューをリロード
+            self.tableView.reloadData()
+        })
+
+        present(alert, animated: true)
     }
 }
 
