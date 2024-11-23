@@ -254,24 +254,14 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
 
     // MARK: - 全削除ボタンのアクション
     @IBAction func deleteAllItems(_ sender: UIBarButtonItem) {
-        let alert = UIAlertController(
-            title: "確認",
-            message: "すべてのアイテムを削除しますか？",
-            preferredStyle: .alert
-        )
-
-        alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
+        let alert = UIAlertController(title: "確認", message: "全ての未購入アイテムを削除しますか？", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel, handler: nil))
         alert.addAction(UIAlertAction(title: "削除", style: .destructive) { [weak self] _ in
             guard let self = self else { return }
-
-            // アイテムリストを空にする
-            self.items.removeAll()
-            UserDefaults.standard.removeObject(forKey: self.keyItems) // UserDefaultsから削除
-
-            // テーブルビューをリロード
-            self.tableView.reloadData()
+            self.items.removeAll()  // 未購入アイテムを全削除
+            self.saveItems()        // 永続データを更新
+            self.tableView.reloadData()  // テーブルビューをリロード
         })
-
         present(alert, animated: true)
     }
 }

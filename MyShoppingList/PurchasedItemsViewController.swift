@@ -161,24 +161,14 @@ class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDele
 
     // MARK: - 全削除ボタンのアクション
     @IBAction func deleteAllPurchasedItems(_ sender: UIBarButtonItem) {
-        let alert = UIAlertController(
-            title: "確認",
-            message: "すべての購入済みアイテムを削除しますか？",
-            preferredStyle: .alert
-        )
-
-        alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
+        let alert = UIAlertController(title: "確認", message: "全ての購入済みアイテムを削除しますか？", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel, handler: nil))
         alert.addAction(UIAlertAction(title: "削除", style: .destructive) { [weak self] _ in
             guard let self = self else { return }
-
-            // 購入済みリストを空にする
-            self.purchasedItems.removeAll()
-            UserDefaults.standard.removeObject(forKey: self.purchasedItemsKey) // UserDefaultsから削除
-
-            // テーブルビューをリロード
-            self.tableView.reloadData()
+            self.purchasedItems.removeAll()  // 購入済みアイテムを全削除
+            self.savePurchasedItems()        // 永続データを更新
+            self.tableView.reloadData()      // テーブルビューをリロード
         })
-
         present(alert, animated: true)
     }
 }
