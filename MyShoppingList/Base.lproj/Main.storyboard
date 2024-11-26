@@ -111,7 +111,7 @@
                             <barButtonItem systemItem="trash" id="06T-v8-5IM">
                                 <color key="tintColor" systemColor="systemRedColor"/>
                                 <connections>
-                                    <action selector="deleteAllItems:" destination="jGi-lu-5ch" id="sE6-VU-e8x"/>
+                                    <action selector="didTapDeleteButton:" destination="jGi-lu-5ch" id="FTm-d4-Ti6"/>
                                 </connections>
                             </barButtonItem>
                             <barButtonItem style="plain" id="3x4-q5-o1v">
@@ -396,7 +396,7 @@
                         <barButtonItem key="rightBarButtonItem" systemItem="trash" id="nvy-Oo-nZN">
                             <color key="tintColor" systemColor="systemRedColor"/>
                             <connections>
-                                <action selector="deleteAllPurchasedItems:" destination="uEy-ck-oX2" id="7vS-28-qna"/>
+                                <action selector="deletePurchasedItems:" destination="uEy-ck-oX2" id="tga-a4-tXO"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
