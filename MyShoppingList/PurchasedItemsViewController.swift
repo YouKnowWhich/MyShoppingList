@@ -25,6 +25,11 @@ class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDele
     @IBOutlet weak var segmentedControl: UISegmentedControl!
     private let purchasedItemsKey = "purchasedItems"  // UserDefaultsキー
 
+    private var isDeleteMode = false {
+        didSet { toggleDeleteMode() }
+    }
+    private var selectedItems = Set<IndexPath>()
+
     // MARK: - ライフサイクルメソッド
 
     override func viewDidLoad() {
@@ -160,15 +165,93 @@ class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDele
     }
 
     // MARK: - 全削除ボタンのアクション
-    @IBAction func deletePurchasedItems(_ sender: UIBarButtonItem) {
-        let alert = UIAlertController(title: "確認", message: "全ての購入済みアイテムを削除しますか？", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel, handler: nil))
+    @IBAction func didTapPurchasedDeleteButton(_ sender: UIBarButtonItem) {
+        isDeleteMode.toggle()
+    }
+
+    private func toggleDeleteMode() {
+        if isDeleteMode {
+            // 削除モード開始
+            selectedItems.removeAll()
+            tableView.allowsMultipleSelectionDuringEditing = true
+            tableView.setEditing(true, animated: true)
+            //「キャンセル」ボタンを設定
+            let cancelButton = UIButton(type: .system)
+            cancelButton.setTitle("キャンセル", for: .normal)
+            cancelButton.setTitleColor(.red, for: .normal)
+            cancelButton.addTarget(self, action: #selector(didTapPurchasedDeleteButton), for: .touchUpInside)
+            navigationItem.rightBarButtonItem = UIBarButtonItem(customView: cancelButton)
+
+            toolbarItems = [
+                UIBarButtonItem(title: "全選択", style: .plain, target: self, action: #selector(didTapSelectAllButton)),
+                UIBarButtonItem.flexibleSpace(),
+                UIBarButtonItem(title: "削除", style: .plain, target: self, action: #selector(didTapDeleteSelectedItemsButton))
+            ]
+            navigationController?.setToolbarHidden(false, animated: true)
+        } else {
+            // 通常モードに戻る
+            tableView.setEditing(false, animated: true)
+            // ボタンをトラッシュアイコンに戻す
+            let trashButton = UIBarButtonItem(
+                barButtonSystemItem: .trash,
+                target: self,
+                action: #selector(didTapPurchasedDeleteButton)
+            )
+            trashButton.tintColor = .red // トラッシュアイコンの色を赤に設定
+            navigationItem.rightBarButtonItem = trashButton
+
+            navigationController?.setToolbarHidden(true, animated: true)
+        }
+    }
+
+    // MARK: - 全選択ボタンアクション
+    @objc private func didTapSelectAllButton() {
+        for section in 0..<tableView.numberOfSections {
+            for row in 0..<tableView.numberOfRows(inSection: section) {
+                let indexPath = IndexPath(row: row, section: section)
+                tableView.selectRow(at: indexPath, animated: true, scrollPosition: .none)
+                selectedItems.insert(indexPath)
+            }
+        }
+    }
+
+    // MARK: - 選択したアイテムを削除
+    @objc private func didTapDeleteSelectedItemsButton() {
+        guard !selectedItems.isEmpty else { return }
+
+        let alert = UIAlertController(
+            title: "確認",
+            message: "\(selectedItems.count)件のアイテムを削除しますか？",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
         alert.addAction(UIAlertAction(title: "削除", style: .destructive) { [weak self] _ in
-            guard let self = self else { return }
-            self.purchasedItems.removeAll()  // 購入済みアイテムを全削除
-            self.savePurchasedItems()        // 永続データを更新
-            self.tableView.reloadData()      // テーブルビューをリロード
+            self?.deleteSelectedItems()
         })
         present(alert, animated: true)
+    }
+
+    private func deleteSelectedItems() {
+        let indices = selectedItems.map { $0.row }.sorted(by: >)
+        for index in indices {
+            purchasedItems.remove(at: index)
+        }
+        selectedItems.removeAll()
+        savePurchasedItems()
+        tableView.reloadData()
+        isDeleteMode = false
+    }
+
+    // MARK: - テーブルビューのデリゲートメソッド
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if isDeleteMode {
+            selectedItems.insert(indexPath)
+        }
+    }
+
+    override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        if isDeleteMode {
+            selectedItems.remove(indexPath)
+        }
     }
 }
