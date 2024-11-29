@@ -297,8 +297,3 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
         selectedItem.isChecked ? moveToPurchasedItems(item: selectedItem, at: indexPath) : moveToShoppingList(item: selectedItem)
     }
 }
-
-// MARK: - Notification.Name 拡張
-extension Notification.Name {
-    static let purchasedItemsUpdated = Notification.Name("PurchasedItemsUpdated")
-}

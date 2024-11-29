@@ -15,39 +15,32 @@ protocol PurchasedItemsViewControllerDelegate: AnyObject {
     func addItemBackToShoppingList(item: TableViewController.Item)
 }
 
+// MARK: - PurchasedItemsViewController
 class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDelegate {
 
     // MARK: - プロパティ
-
     private var purchasedItems: [TableViewController.Item] = []
     weak var delegate: PurchasedItemsViewControllerDelegate?
 
     @IBOutlet weak var segmentedControl: UISegmentedControl!
+
     private let purchasedItemsKey = "purchasedItems"  // UserDefaultsキー
 
-    private var isDeleteMode = false {
-        didSet { toggleDeleteMode() }
-    }
+    private var isDeleteMode = false { didSet { toggleDeleteMode() } }
     private var selectedItems = Set<IndexPath>()
 
-    // MARK: - ライフサイクルメソッド
-
+    // MARK: - ライフサイクル
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
         loadPurchasedItems()
-
-        tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 44 // 適切な推定値を設定
-
-        // 購入済みアイテムの更新を監視し、更新時にリロードする
-        NotificationCenter.default.addObserver(self, selector: #selector(reloadPurchasedItems), name: NSNotification.Name("PurchasedItemsUpdated"), object: nil)
+        configureTableView()
+        registerForNotifications()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        loadPurchasedItems()    // 最新の購入済みアイテムを再読み込み
-        tableView.reloadData()  // テーブルビューをリロード
+        refreshData()
     }
 
     // クラス解放時にObserverを解除
@@ -56,11 +49,23 @@ class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDele
     }
 
     // MARK: - 初期設定
-
     private func setupView() {
-        // 初期状態は日付でソート
-        segmentedControl.selectedSegmentIndex = 0
+        segmentedControl.selectedSegmentIndex = 0  // 初期状態は日付でソート
         sortItems(segmentedControl)
+    }
+
+    private func configureTableView() {
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 44
+    }
+
+    private func registerForNotifications() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(reloadPurchasedItems),
+            name: .purchasedItemsUpdated,
+            object: nil
+        )
     }
 
     // MARK: - デリゲートメソッド
@@ -69,53 +74,40 @@ class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDele
     func didToggleCheck(for cell: ItemTableViewCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
 
-        var selectedItem = purchasedItems[indexPath.row]
-        selectedItem.isChecked.toggle()
+        var item = purchasedItems[indexPath.row]
+        item.isChecked.toggle()
 
-        if !selectedItem.isChecked {
-            // アイテムを購入済みリストから削除
+        if !item.isChecked {
             purchasedItems.remove(at: indexPath.row)
-
-            // データ保存を行い、UI更新
             savePurchasedItems()
             tableView.deleteRows(at: [indexPath], with: .automatic)
-
-            // UI全体をリロードして確実に反映
-            tableView.reloadData()
-
-            // 未購入リストにアイテムを戻す
-            delegate?.addItemBackToShoppingList(item: selectedItem)
+            delegate?.addItemBackToShoppingList(item: item)
         }
     }
 
-    // MARK: - データ操作 (UserDefaults)
+    // MARK: - データ操作
 
     private func loadPurchasedItems() {
-        DispatchQueue.global().async { [weak self] in
-            guard let self = self else { return }
-            let defaults = UserDefaults.standard
-            if let data = defaults.data(forKey: self.purchasedItemsKey),
-               let savedItems = try? JSONDecoder().decode([TableViewController.Item].self, from: data) {
-                DispatchQueue.main.async {
-                    self.purchasedItems = savedItems
-                    self.tableView.reloadData()
-                }
-            }
-        }
+        guard let data = UserDefaults.standard.data(forKey: purchasedItemsKey),
+              let savedItems = try? JSONDecoder().decode([TableViewController.Item].self, from: data) else { return }
+        purchasedItems = savedItems
     }
 
     private func savePurchasedItems() {
-        let defaults = UserDefaults.standard
-        if let data = try? JSONEncoder().encode(self.purchasedItems) {
-            defaults.set(data, forKey: self.purchasedItemsKey)
-        } else {
+        guard let data = try? JSONEncoder().encode(purchasedItems) else {
             print("Failed to save purchased items.")
+            return
         }
+        UserDefaults.standard.set(data, forKey: purchasedItemsKey)
     }
 
-    // 購入済みアイテムリストをリロード
-    @objc private func reloadPurchasedItems() {
+    private func refreshData() {
         loadPurchasedItems()
+        tableView.reloadData()
+    }
+
+    @objc private func reloadPurchasedItems() {
+        refreshData()
     }
 
     // MARK: - ソート処理
@@ -141,30 +133,24 @@ class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDele
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell1", for: indexPath) as! ItemTableViewCell
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "Cell1", for: indexPath) as? ItemTableViewCell else {
+            fatalError("Failed to dequeue reusable cell.")
+        }
         var item = purchasedItems[indexPath.row]
-
         item.category = String(item.category.prefix(1))
         cell.configure(with: item)
         cell.delegate = self
-
         return cell
     }
 
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // purchasedItems配列からアイテムを削除
-            purchasedItems.remove(at: indexPath.row)
-
-            // UserDefaultsのデータを上書き保存
-            savePurchasedItems()  // 削除後にUserDefaultsに即時反映
-
-            // テーブルビューから行を削除
-            tableView.deleteRows(at: [indexPath], with: .automatic)
-        }
+        guard editingStyle == .delete else { return }
+        purchasedItems.remove(at: indexPath.row)
+        savePurchasedItems()
+        tableView.deleteRows(at: [indexPath], with: .automatic)
     }
 
-    // MARK: - 全削除ボタンのアクション
+    // MARK: - 削除モード操作
     @IBAction func didTapPurchasedDeleteButton(_ sender: UIBarButtonItem) {
         isDeleteMode.toggle()
     }
