@@ -11,12 +11,10 @@ import UIKit
 class AddItemViewController: UIViewController {
 
     // MARK: - モード設定 (追加/編集)
-
     enum Mode {
         case add
         case edit(TableViewController.Item)
 
-        // モードに応じたセーブボタンのセグエ識別子
         var saveButtonSegueIdentifier: String {
             switch self {
             case .add: return "exitFromAddBySaveSegue"
@@ -24,7 +22,6 @@ class AddItemViewController: UIViewController {
             }
         }
 
-        // モードに応じたキャンセルボタンのセグエ識別子
         var cancelButtonSegueIdentifier: String {
             switch self {
             case .add: return "exitFromAddByCancelSegue"
@@ -34,11 +31,11 @@ class AddItemViewController: UIViewController {
     }
 
     // MARK: - プロパティ
-
     var mode = Mode.add
     private(set) var editedItem: TableViewController.Item?
+
     private let maxItemNameLength = 30  // アイテム名の最大長
-    private let categories = [
+    private let categories: [String] = [
         "📕本・コミック・雑誌", "💿DVD・ミュージック・ゲーム", "📺家電・カメラ・AV機器",
         "💻パソコン・オフィス用品", "🍽ホーム＆キッチン・ペット・DIY", "🥐食品・飲料",
         "🧴ドラッグストア・ビューティー", "🍼ベビー・おもちゃ・ホビー", "👕服・シューズ・バッグ・腕時計",
@@ -46,30 +43,36 @@ class AddItemViewController: UIViewController {
     ]
 
     // MARK: - アウトレット
-
     @IBOutlet weak var datePicker: UIDatePicker!
     @IBOutlet weak var categoryPickerView: UIPickerView!
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var saveButton: UIBarButtonItem!
 
-    // MARK: - ライフサイクルメソッド
-
+    // MARK: - ライフサイクル
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupPickerViews()
-        setupInitialValues()
-        setupTextField()
-        updateSaveButtonState()
+        setupUI()
     }
 
     // MARK: - 初期設定
+    private func setupUI() {
+        configurePickerView()
+        configureTextField()
+        initializeValues()
+        updateSaveButtonState()
+    }
 
-    private func setupPickerViews() {
+    private func configurePickerView() {
         categoryPickerView.dataSource = self
         categoryPickerView.delegate = self
     }
 
-    private func setupInitialValues() {
+    private func configureTextField() {
+        nameTextField.delegate = self
+        nameTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+    }
+
+    private func initializeValues() {
         let midnightToday = Calendar.current.startOfDay(for: Date())
 
         switch mode {
@@ -85,15 +88,9 @@ class AddItemViewController: UIViewController {
         }
     }
 
-    private func setupTextField() {
-        nameTextField.delegate = self
-        nameTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
-    }
-
     // MARK: - ボタンアクション
-
     // セーブボタン押下時の処理
-    @IBAction func pressSaveButton(_ sender: Any) {
+    @IBAction private func pressSaveButton(_ sender: UIBarButtonItem) {
         guard let itemName = nameTextField.text, !itemName.isEmpty else {
             showAlert(message: "アイテム名を入力してください。")
             return
@@ -109,15 +106,15 @@ class AddItemViewController: UIViewController {
     }
 
     // キャンセルボタン押下時の処理
-    @IBAction func pressCancelButton(_ sender: Any) {
+    @IBAction private func pressCancelButton(_ sender: UIBarButtonItem) {
         performSegue(withIdentifier: mode.cancelButtonSegueIdentifier, sender: sender)
     }
 
     // MARK: - アイテム作成と重複チェック
-
     private func createItem(name: String) {
         let selectedCategory = categories[categoryPickerView.selectedRow(inComponent: 0)]
         let selectedDate = datePicker.date
+
         let itemID: UUID
         let isChecked: Bool
 
@@ -140,16 +137,15 @@ class AddItemViewController: UIViewController {
     }
 
     private func isDuplicateItem(name: String) -> Bool {
-        if let existingItems = retrieveExistingItems() {
-            let selectedCategory = categories[categoryPickerView.selectedRow(inComponent: 0)]
-            return existingItems.contains { $0.name == name && $0.category == selectedCategory && $0.purchaseDate == datePicker.date }
+        guard let existingItems = retrieveExistingItems() else { return false }
+
+        let selectedCategory = categories[categoryPickerView.selectedRow(inComponent: 0)]
+        return existingItems.contains {
+            $0.name == name && $0.category == selectedCategory && $0.purchaseDate == datePicker.date
         }
-        return false
     }
 
     // MARK: - ユーティリティ
-
-    // アラート表示
     private func showAlert(message: String) {
         let alert = UIAlertController(title: "入力エラー", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
@@ -158,12 +154,8 @@ class AddItemViewController: UIViewController {
 
     // 未購入アイテムのリストを取得
     private func retrieveExistingItems() -> [TableViewController.Item]? {
-        let defaults = UserDefaults.standard
-        if let data = defaults.data(forKey: "items"),
-           let items = try? JSONDecoder().decode([TableViewController.Item].self, from: data) {
-            return items
-        }
-        return nil
+        guard let data = UserDefaults.standard.data(forKey: "items") else { return nil }
+        return try? JSONDecoder().decode([TableViewController.Item].self, from: data)
     }
 
     // テキストフィールド変更時の保存ボタン状態更新
