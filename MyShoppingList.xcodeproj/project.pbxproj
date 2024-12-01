@@ -3,12 +3,17 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		4F42530A2CA4376700906CA7 /* PurchasedItemsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F4253092CA4376700906CA7 /* PurchasedItemsViewController.swift */; };
 		4F87B5A92CFA21A200313178 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F87B5A82CFA21A200313178 /* Notifications.swift */; };
+		4F87B5D82CFC388200313178 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F87B5D72CFC388200313178 /* WidgetKit.framework */; };
+		4F87B5DA2CFC388200313178 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F87B5D92CFC388200313178 /* SwiftUI.framework */; };
+		4F87B5EB2CFC388400313178 /* ShoppingListWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4F87B5D52CFC388200313178 /* ShoppingListWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		4F87B5F52CFC503700313178 /* SharedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F87B5F42CFC503700313178 /* SharedModels.swift */; };
+		4F87B5F62CFC507A00313178 /* SharedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F87B5F42CFC503700313178 /* SharedModels.swift */; };
 		4FF4B0A02C60FF0C003ABC54 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF4B09F2C60FF0C003ABC54 /* AppDelegate.swift */; };
 		4FF4B0A22C60FF0C003ABC54 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF4B0A12C60FF0C003ABC54 /* SceneDelegate.swift */; };
 		4FF4B0A42C60FF0C003ABC54 /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF4B0A32C60FF0C003ABC54 /* TableViewController.swift */; };
@@ -19,9 +24,39 @@
 		4FF4B0B62C672D45003ABC54 /* ItemTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF4B0B52C672D45003ABC54 /* ItemTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		4F87B5E92CFC388400313178 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4FF4B0942C60FF0C003ABC54 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4F87B5D42CFC388200313178;
+			remoteInfo = ShoppingListWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4F87B5EC2CFC388400313178 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				4F87B5EB2CFC388400313178 /* ShoppingListWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		4F4253092CA4376700906CA7 /* PurchasedItemsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchasedItemsViewController.swift; sourceTree = "<group>"; };
 		4F87B5A82CFA21A200313178 /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
+		4F87B5D52CFC388200313178 /* ShoppingListWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShoppingListWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F87B5D72CFC388200313178 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		4F87B5D92CFC388200313178 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		4F87B5F12CFC399F00313178 /* MyShoppingList.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MyShoppingList.entitlements; sourceTree = "<group>"; };
+		4F87B5F22CFC39C900313178 /* ShoppingListWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShoppingListWidgetExtension.entitlements; sourceTree = "<group>"; };
+		4F87B5F42CFC503700313178 /* SharedModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedModels.swift; sourceTree = "<group>"; };
 		4FF4B09C2C60FF0C003ABC54 /* MyShoppingList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyShoppingList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FF4B09F2C60FF0C003ABC54 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4FF4B0A12C60FF0C003ABC54 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -34,7 +69,30 @@
 		4FF4B0B52C672D45003ABC54 /* ItemTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		4F87B5EF2CFC388400313178 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 4F87B5D42CFC388200313178 /* ShoppingListWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		4F87B5DB2CFC388200313178 /* ShoppingListWidget */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (4F87B5EF2CFC388400313178 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = ShoppingListWidget; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
+		4F87B5D22CFC388200313178 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F87B5DA2CFC388200313178 /* SwiftUI.framework in Frameworks */,
+				4F87B5D82CFC388200313178 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4FF4B0992C60FF0C003ABC54 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -45,10 +103,31 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4F87B5D62CFC388200313178 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4F87B5D72CFC388200313178 /* WidgetKit.framework */,
+				4F87B5D92CFC388200313178 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		4F87B5F32CFC500D00313178 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				4F87B5F42CFC503700313178 /* SharedModels.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
 		4FF4B0932C60FF0C003ABC54 = {
 			isa = PBXGroup;
 			children = (
+				4F87B5F22CFC39C900313178 /* ShoppingListWidgetExtension.entitlements */,
+				4F87B5F32CFC500D00313178 /* Shared */,
 				4FF4B09E2C60FF0C003ABC54 /* MyShoppingList */,
+				4F87B5DB2CFC388200313178 /* ShoppingListWidget */,
+				4F87B5D62CFC388200313178 /* Frameworks */,
 				4FF4B09D2C60FF0C003ABC54 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -57,6 +136,7 @@
 			isa = PBXGroup;
 			children = (
 				4FF4B09C2C60FF0C003ABC54 /* MyShoppingList.app */,
+				4F87B5D52CFC388200313178 /* ShoppingListWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -64,6 +144,7 @@
 		4FF4B09E2C60FF0C003ABC54 /* MyShoppingList */ = {
 			isa = PBXGroup;
 			children = (
+				4F87B5F12CFC399F00313178 /* MyShoppingList.entitlements */,
 				4FF4B09F2C60FF0C003ABC54 /* AppDelegate.swift */,
 				4FF4B0A12C60FF0C003ABC54 /* SceneDelegate.swift */,
 				4FF4B0A32C60FF0C003ABC54 /* TableViewController.swift */,
@@ -82,6 +163,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		4F87B5D42CFC388200313178 /* ShoppingListWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4F87B5F02CFC388400313178 /* Build configuration list for PBXNativeTarget "ShoppingListWidgetExtension" */;
+			buildPhases = (
+				4F87B5D12CFC388200313178 /* Sources */,
+				4F87B5D22CFC388200313178 /* Frameworks */,
+				4F87B5D32CFC388200313178 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				4F87B5DB2CFC388200313178 /* ShoppingListWidget */,
+			);
+			name = ShoppingListWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = ShoppingListWidgetExtension;
+			productReference = 4F87B5D52CFC388200313178 /* ShoppingListWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		4FF4B09B2C60FF0C003ABC54 /* MyShoppingList */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4FF4B0B02C60FF0D003ABC54 /* Build configuration list for PBXNativeTarget "MyShoppingList" */;
@@ -89,10 +192,12 @@
 				4FF4B0982C60FF0C003ABC54 /* Sources */,
 				4FF4B0992C60FF0C003ABC54 /* Frameworks */,
 				4FF4B09A2C60FF0C003ABC54 /* Resources */,
+				4F87B5EC2CFC388400313178 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				4F87B5EA2CFC388400313178 /* PBXTargetDependency */,
 			);
 			name = MyShoppingList;
 			productName = MyShoppingList;
@@ -106,9 +211,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1540;
+				LastSwiftUpdateCheck = 1610;
 				LastUpgradeCheck = 1540;
 				TargetAttributes = {
+					4F87B5D42CFC388200313178 = {
+						CreatedOnToolsVersion = 16.1;
+					};
 					4FF4B09B2C60FF0C003ABC54 = {
 						CreatedOnToolsVersion = 15.4;
 					};
@@ -128,11 +236,19 @@
 			projectRoot = "";
 			targets = (
 				4FF4B09B2C60FF0C003ABC54 /* MyShoppingList */,
+				4F87B5D42CFC388200313178 /* ShoppingListWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		4F87B5D32CFC388200313178 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4FF4B09A2C60FF0C003ABC54 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -146,10 +262,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		4F87B5D12CFC388200313178 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F87B5F62CFC507A00313178 /* SharedModels.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4FF4B0982C60FF0C003ABC54 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F87B5F52CFC503700313178 /* SharedModels.swift in Sources */,
 				4FF4B0A42C60FF0C003ABC54 /* TableViewController.swift in Sources */,
 				4F87B5A92CFA21A200313178 /* Notifications.swift in Sources */,
 				4F42530A2CA4376700906CA7 /* PurchasedItemsViewController.swift in Sources */,
@@ -161,6 +286,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4F87B5EA2CFC388400313178 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4F87B5D42CFC388200313178 /* ShoppingListWidgetExtension */;
+			targetProxy = 4F87B5E92CFC388400313178 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		4FF4B0A52C60FF0C003ABC54 /* Main.storyboard */ = {
@@ -182,6 +315,64 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		4F87B5ED2CFC388400313178 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = ShoppingListWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4WRX528UUC;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ShoppingListWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ShoppingListWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yuya4514-icloud.MyShoppingList.ShoppingListWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		4F87B5EE2CFC388400313178 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = ShoppingListWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4WRX528UUC;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ShoppingListWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ShoppingListWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yuya4514-icloud.MyShoppingList.ShoppingListWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		4FF4B0AE2C60FF0D003ABC54 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -306,6 +497,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MyShoppingList/MyShoppingList.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4WRX528UUC;
@@ -334,6 +526,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MyShoppingList/MyShoppingList.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4WRX528UUC;
@@ -360,6 +553,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		4F87B5F02CFC388400313178 /* Build configuration list for PBXNativeTarget "ShoppingListWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4F87B5ED2CFC388400313178 /* Debug */,
+				4F87B5EE2CFC388400313178 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		4FF4B0972C60FF0C003ABC54 /* Build configuration list for PBXProject "MyShoppingList" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

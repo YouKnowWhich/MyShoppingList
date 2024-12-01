@@ -7,24 +7,29 @@
 //
 
 import UIKit
+#if canImport(WidgetKit)
+import WidgetKit
+#endif
 
 // MARK: - PurchasedItemsViewControllerDelegate
 
 // 購入済みアイテムを未購入リストに戻すためのデリゲートプロトコル
 protocol PurchasedItemsViewControllerDelegate: AnyObject {
-    func addItemBackToShoppingList(item: TableViewController.Item)
+    func addItemBackToShoppingList(item: Item)
 }
 
 // MARK: - PurchasedItemsViewController
 class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDelegate {
 
+    // MARK: - 定数
+    private let purchasedItemsKey = "purchasedItems" // UserDefaultsキー
+    private let suiteName = "group.com.example.MyShoppingList" // App Groupsのグループ名
+
     // MARK: - プロパティ
-    private var purchasedItems: [TableViewController.Item] = []
+    private var purchasedItems: [Item] = []
     weak var delegate: PurchasedItemsViewControllerDelegate?
 
     @IBOutlet weak var segmentedControl: UISegmentedControl!
-
-    private let purchasedItemsKey = "purchasedItems"  // UserDefaultsキー
 
     private var isDeleteMode = false { didSet { toggleDeleteMode() } }
     private var selectedItems = Set<IndexPath>()
@@ -69,7 +74,6 @@ class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDele
     }
 
     // MARK: - デリゲートメソッド
-
     // チェックボックスのトグルによって、購入済みアイテムを未購入リストに戻す
     func didToggleCheck(for cell: ItemTableViewCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
@@ -82,23 +86,31 @@ class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDele
             savePurchasedItems()
             tableView.deleteRows(at: [indexPath], with: .automatic)
             delegate?.addItemBackToShoppingList(item: item)
+
+            // WidgetKit を利用可能な場合に更新
+            if #available(iOS 14.0, *) {
+                WidgetCenter.shared.reloadAllTimelines()
+            }
         }
     }
 
     // MARK: - データ操作
-
     private func loadPurchasedItems() {
-        guard let data = UserDefaults.standard.data(forKey: purchasedItemsKey),
-              let savedItems = try? JSONDecoder().decode([TableViewController.Item].self, from: data) else { return }
+        guard let userDefaults = UserDefaults(suiteName: suiteName),
+              let data = userDefaults.data(forKey: purchasedItemsKey),
+              let savedItems = try? JSONDecoder().decode([Item].self, from: data) else {
+            return
+        }
         purchasedItems = savedItems
     }
 
     private func savePurchasedItems() {
-        guard let data = try? JSONEncoder().encode(purchasedItems) else {
+        guard let data = try? JSONEncoder().encode(purchasedItems),
+              let userDefaults = UserDefaults(suiteName: suiteName) else {
             print("Failed to save purchased items.")
             return
         }
-        UserDefaults.standard.set(data, forKey: purchasedItemsKey)
+        userDefaults.set(data, forKey: purchasedItemsKey)
     }
 
     private func refreshData() {

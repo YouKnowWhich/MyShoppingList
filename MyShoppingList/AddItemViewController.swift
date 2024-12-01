@@ -13,7 +13,7 @@ class AddItemViewController: UIViewController {
     // MARK: - モード設定 (追加/編集)
     enum Mode {
         case add
-        case edit(TableViewController.Item)
+        case edit(Item)
 
         var saveButtonSegueIdentifier: String {
             switch self {
@@ -30,9 +30,12 @@ class AddItemViewController: UIViewController {
         }
     }
 
+    // MARK: - 定数
+    private let suiteName = "group.com.example.MyShoppingList" // App Groups のグループ名
+
     // MARK: - プロパティ
     var mode = Mode.add
-    private(set) var editedItem: TableViewController.Item?
+    private(set) var editedItem: Item?
 
     private let maxItemNameLength = 30  // アイテム名の最大長
     private let categories: [String] = [
@@ -127,7 +130,7 @@ class AddItemViewController: UIViewController {
             itemID = oldItem.id
         }
 
-        editedItem = TableViewController.Item(
+        editedItem = Item(
             id: itemID,
             name: name,
             isChecked: isChecked,
@@ -153,9 +156,10 @@ class AddItemViewController: UIViewController {
     }
 
     // 未購入アイテムのリストを取得
-    private func retrieveExistingItems() -> [TableViewController.Item]? {
-        guard let data = UserDefaults.standard.data(forKey: "items") else { return nil }
-        return try? JSONDecoder().decode([TableViewController.Item].self, from: data)
+    private func retrieveExistingItems() -> [Item]? {
+        guard let userDefaults = UserDefaults(suiteName: suiteName),
+              let data = userDefaults.data(forKey: "items") else { return nil }
+        return try? JSONDecoder().decode([Item].self, from: data)
     }
 
     // テキストフィールド変更時の保存ボタン状態更新

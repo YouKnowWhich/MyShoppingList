@@ -26,6 +26,8 @@ class ItemTableViewCell: UITableViewCell {
     weak var delegate: ItemTableViewCellDelegate?
     private var isChecked: Bool = false
 
+    private let suiteName = "group.com.example.MyShoppingList" // App Groups のグループ名
+
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale.current
@@ -34,7 +36,7 @@ class ItemTableViewCell: UITableViewCell {
     }()
 
     // MARK: - 公開メソッド
-    func configure(with item: TableViewController.Item) {
+    func configure(with item: Item) {
         setupFontStyles()
         setupDynamicTypeSupport()
         setupNameLabelAppearance()
@@ -52,6 +54,7 @@ class ItemTableViewCell: UITableViewCell {
         isChecked.toggle()
         updateCheckBoxAppearance()
         delegate?.didToggleCheck(for: self)
+        saveCheckStateToUserDefaults()
     }
 
     // MARK: - プライベートメソッド
@@ -84,5 +87,14 @@ class ItemTableViewCell: UITableViewCell {
         UIView.transition(with: checkBoxButton, duration: 0.2, options: .transitionCrossDissolve) {
             self.checkBoxButton.setImage(checkBoxImage, for: .normal)
         }
+    }
+
+    /// チェック状態を UserDefaults に保存
+    private func saveCheckStateToUserDefaults() {
+        guard let userDefaults = UserDefaults(suiteName: suiteName) else { return }
+
+        // ここでは例として、単純な値（キーとチェック状態）を保存
+        let checkStateKey = "checkState-\(nameLabel.text ?? "unknown")"
+        userDefaults.set(isChecked, forKey: checkStateKey)
     }
 }

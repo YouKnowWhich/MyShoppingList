@@ -7,6 +7,9 @@
 //
 
 import UIKit
+#if canImport(WidgetKit)
+import WidgetKit
+#endif
 
 // MARK: - TableViewController: メイン画面のコントローラ
 class TableViewController: UITableViewController, ItemTableViewCellDelegate, PurchasedItemsViewControllerDelegate {
@@ -17,18 +20,7 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
         static let purchasedItems = "purchasedItems" // 購入済みアイテムのキー
     }
 
-    // MARK: - データモデル
-    struct Item: Codable {
-        var id: UUID
-        var name: String
-        var isChecked: Bool
-        var category: String
-        var purchaseDate: Date?
-
-        mutating func toggleIsChecked() {
-            isChecked.toggle()
-        }
-    }
+    private let suiteName = "group.com.example.MyShoppingList" // App Groups のグループ名
 
     // MARK: - プロパティ
     private var items: [Item] = [] { didSet { saveItems() } }
@@ -90,15 +82,16 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
     }
 
     private func saveToUserDefaults<T: Encodable>(_ key: String, data: T) {
-        guard let encodedData = try? JSONEncoder().encode(data) else { return }
-        UserDefaults.standard.set(encodedData, forKey: key)
+        guard let encodedData = try? JSONEncoder().encode(data),
+              let userDefaults = UserDefaults(suiteName: suiteName) else { return }
+        userDefaults.set(encodedData, forKey: key)
     }
 
     private func loadFromUserDefaults<T: Decodable>(_ key: String) -> T? {
-        guard let data = UserDefaults.standard.data(forKey: key) else { return nil }
+        guard let userDefaults = UserDefaults(suiteName: suiteName),
+              let data = userDefaults.data(forKey: key) else { return nil }
         return try? JSONDecoder().decode(T.self, from: data)
     }
-
     // MARK: - アイテム操作
     func addItemBackToShoppingList(item: Item) {
         guard !items.contains(where: { $0.id == item.id }) else { return }
@@ -114,19 +107,32 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
         items.remove(at: indexPath.row)
         updateDataAfterChange()
         tableView.deleteRows(at: [indexPath], with: .automatic)
+
+        // ウィジェットを更新
+        WidgetCenter.shared.reloadAllTimelines()
     }
+
 
     private func moveToShoppingList(item: Item) {
         guard !items.contains(where: { $0.id == item.id }) else { return }
         items.append(item)
         purchasedItems.removeAll { $0.id == item.id }
         updateDataAfterChange()
+
+        // ウィジェットを更新
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     private func updateDataAfterChange() {
         saveItems()
         savePurchasedItems()
+
+        // WidgetKit が利用可能な場合のみウィジェットを更新
+        if #available(iOS 14.0, *) {
+            WidgetCenter.shared.reloadAllTimelines()
+        }
     }
+
 
     // MARK: - ソート処理
     @IBAction func sortItems(_ sender: UISegmentedControl) {
@@ -184,6 +190,9 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
         guard let addVC = segue.source as? AddItemViewController, let item = addVC.editedItem else { return }
         items.append(item)
         tableView.insertRows(at: [IndexPath(row: items.count - 1, section: 0)], with: .automatic)
+
+        // ウィジェットを更新
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     @IBAction func exitFromEditByCancel(segue: UIStoryboardSegue) {
@@ -273,6 +282,9 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
         selectedItems.removeAll()
         tableView.reloadData()
         isDeleteMode = false
+
+        // ウィジェットを更新
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     // MARK: - テーブルビューのデリゲートメソッド
