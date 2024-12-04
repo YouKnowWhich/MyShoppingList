@@ -75,10 +75,20 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
 
     private func saveItems() {
         saveToUserDefaults(UserDefaultsKeys.items, data: items)
+
+        // WidgetKitが利用可能な場合のみタイムラインをリロード
+        if #available(iOS 14.0, *) {
+            WidgetCenter.shared.reloadAllTimelines()
+        }
     }
 
     private func savePurchasedItems() {
         saveToUserDefaults(UserDefaultsKeys.purchasedItems, data: purchasedItems)
+
+        // WidgetKitが利用可能な場合のみタイムラインをリロード
+        if #available(iOS 14.0, *) {
+            WidgetCenter.shared.reloadAllTimelines()
+        }
     }
 
     private func saveToUserDefaults<T: Encodable>(_ key: String, data: T) {
@@ -176,11 +186,15 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
     // MARK: - セグエと画面遷移
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         guard let addVC = (segue.destination as? UINavigationController)?.topViewController as? AddItemViewController else { return }
+
         if segue.identifier == "EditSegue", let indexPath = sender as? IndexPath {
             addVC.mode = .edit(items[indexPath.row])
         } else if segue.identifier == "AddSegue" {
             addVC.mode = .add
         }
+
+        // デリゲートを設定
+        addVC.delegate = self
     }
 
     @IBAction func exitFromAddByCancel(segue: UIStoryboardSegue) {
@@ -307,5 +321,11 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
         selectedItem.toggleIsChecked()
         items[indexPath.row] = selectedItem
         selectedItem.isChecked ? moveToPurchasedItems(item: selectedItem, at: indexPath) : moveToShoppingList(item: selectedItem)
+    }
+}
+
+extension TableViewController: AddItemViewControllerDelegate {
+    func didSaveItem() {
+        updateDataAfterChange()
     }
 }

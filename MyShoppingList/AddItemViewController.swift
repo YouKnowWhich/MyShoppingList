@@ -8,6 +8,11 @@
 
 import UIKit
 
+// MARK: - AddItemViewControllerDelegate
+protocol AddItemViewControllerDelegate: AnyObject {
+    func didSaveItem()
+}
+
 class AddItemViewController: UIViewController {
 
     // MARK: - モード設定 (追加/編集)
@@ -34,6 +39,7 @@ class AddItemViewController: UIViewController {
     private let suiteName = "group.com.example.MyShoppingList" // App Groups のグループ名
 
     // MARK: - プロパティ
+    weak var delegate: AddItemViewControllerDelegate?
     var mode = Mode.add
     private(set) var editedItem: Item?
 
@@ -106,6 +112,7 @@ class AddItemViewController: UIViewController {
 
         createItem(name: itemName)
         performSegue(withIdentifier: mode.saveButtonSegueIdentifier, sender: sender)
+        delegate?.didSaveItem() // デリゲートを呼び出す
     }
 
     // キャンセルボタン押下時の処理

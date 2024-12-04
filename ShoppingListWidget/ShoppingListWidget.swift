@@ -76,6 +76,7 @@ struct ShoppingListWidgetEntryView: View {
             }
         }
         .padding()
+        .containerBackground(for: .widget) { Color.clear } // 背景を設定
     }
 }
 
