@@ -116,10 +116,11 @@
                             </barButtonItem>
                             <barButtonItem style="plain" id="3x4-q5-o1v">
                                 <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="Ar3-Wi-tXa" userLabel="＋">
-                                    <rect key="frame" x="294" y="5" width="40" height="34.333333333333336"/>
+                                    <rect key="frame" x="285" y="5" width="49" height="34.333333333333336"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                     <state key="normal" title="Button"/>
-                                    <buttonConfiguration key="configuration" style="plain" title="＋"/>
+                                    <buttonConfiguration key="configuration" style="plain" image="plus.app" catalog="system"/>
                                     <connections>
                                         <segue destination="aPY-RD-Iad" kind="presentation" identifier="AddSegue" id="Dqg-jB-WX4"/>
                                     </connections>
@@ -247,7 +248,8 @@
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="yNh-JO-DzN">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="49"/>
                         <autoresizingMask key="autoresizingMask"/>
-                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="selectedImageTintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </tabBar>
                     <connections>
                         <segue destination="cx2-4b-lkZ" kind="relationship" relationship="viewControllers" id="TgP-Ne-AXg"/>
@@ -413,6 +415,7 @@
         <segue reference="rTq-9c-sJb"/>
     </inferredMetricsTieBreakers>
     <resources>
+        <image name="plus.app" catalog="system" width="128" height="114"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
