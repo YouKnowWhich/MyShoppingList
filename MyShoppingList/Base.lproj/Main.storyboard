@@ -107,30 +107,11 @@
                                 </connections>
                             </segmentedControl>
                         </barButtonItem>
-                        <rightBarButtonItems>
-                            <barButtonItem systemItem="trash" id="06T-v8-5IM">
-                                <color key="tintColor" systemColor="systemRedColor"/>
-                                <connections>
-                                    <action selector="didTapDeleteButton:" destination="jGi-lu-5ch" id="FTm-d4-Ti6"/>
-                                </connections>
-                            </barButtonItem>
-                            <barButtonItem style="plain" id="3x4-q5-o1v">
-                                <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="Ar3-Wi-tXa" userLabel="＋">
-                                    <rect key="frame" x="285" y="5" width="49" height="34.333333333333336"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                    <state key="normal" title="Button"/>
-                                    <buttonConfiguration key="configuration" style="plain" image="plus.app" catalog="system"/>
-                                    <connections>
-                                        <segue destination="aPY-RD-Iad" kind="presentation" identifier="AddSegue" id="Dqg-jB-WX4"/>
-                                    </connections>
-                                </button>
-                            </barButtonItem>
-                        </rightBarButtonItems>
                     </navigationItem>
                     <connections>
                         <outlet property="segmentedControl" destination="qhQ-DA-ti6" id="goK-sw-QXa"/>
                         <segue destination="aPY-RD-Iad" kind="presentation" identifier="EditSegue" id="rTq-9c-sJb"/>
+                        <segue destination="aPY-RD-Iad" kind="presentation" identifier="AddSegue" id="qMb-bZ-4Oj"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MjH-aj-VSs" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -412,10 +393,9 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="rTq-9c-sJb"/>
+        <segue reference="qMb-bZ-4Oj"/>
     </inferredMetricsTieBreakers>
     <resources>
-        <image name="plus.app" catalog="system" width="128" height="114"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

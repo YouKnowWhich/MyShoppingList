@@ -47,6 +47,7 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         refreshData()
+        configureRightBarButtons() // プラスボタンを初期化
     }
 
     // MARK: - 初期設定
@@ -59,6 +60,26 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
         tabBarController?.viewControllers?
             .compactMap { ($0 as? UINavigationController)?.topViewController as? PurchasedItemsViewController }
             .forEach { $0.delegate = self }
+    }
+
+    // プラスボタンとトラッシュボタンを初期化するメソッド
+    private func configureRightBarButtons() {
+        let trashButton = UIBarButtonItem(
+            barButtonSystemItem: .trash,
+            target: self,
+            action: #selector(didTapDeleteButton)
+        )
+        trashButton.tintColor = .red
+
+        let addButton = UIButton(type: .custom)
+        addButton.setImage(UIImage(systemName: "plus.rectangle.fill"), for: .normal) // SF Symbolsを利用
+        addButton.tintColor = .systemBlue
+        addButton.addTarget(self, action: #selector(didTapAddButton), for: .touchUpInside)
+
+        let addBarButtonItem = UIBarButtonItem(customView: addButton)
+
+        // 初期状態ではトラッシュボタンとプラスボタンを表示
+        navigationItem.rightBarButtonItems = [trashButton, addBarButtonItem]
     }
 
     // MARK: - データの保存と読み込み
@@ -232,13 +253,20 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
             selectedItems.removeAll()
             tableView.allowsMultipleSelectionDuringEditing = true
             tableView.setEditing(true, animated: true)
-            //「キャンセル」ボタンを設定
-            let cancelButton = UIButton(type: .system)
-            cancelButton.setTitle("キャンセル", for: .normal)
-            cancelButton.setTitleColor(.red, for: .normal)
-            cancelButton.addTarget(self, action: #selector(didTapDeleteButton), for: .touchUpInside)
-            navigationItem.rightBarButtonItem = UIBarButtonItem(customView: cancelButton)
 
+            // 「キャンセル」ボタンを設定
+            let cancelButton = UIBarButtonItem(
+                title: "キャンセル",
+                style: .plain,
+                target: self,
+                action: #selector(didTapDeleteButton)
+            )
+            cancelButton.tintColor = .red // ボタン色を赤に設定
+
+            // 削除モード中は追加ボタンを非表示にする
+            navigationItem.rightBarButtonItems = [cancelButton]
+
+            // ツールバーの設定
             toolbarItems = [
                 UIBarButtonItem(title: "全選択", style: .plain, target: self, action: #selector(didTapSelectAllButton)),
                 UIBarButtonItem.flexibleSpace(),
@@ -248,17 +276,30 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
         } else {
             // 通常モードに戻る
             tableView.setEditing(false, animated: true)
-            // ボタンをトラッシュアイコンに戻す
+
+            // 通常モードの右上ボタン (トラッシュボタンと追加ボタン) を復元
             let trashButton = UIBarButtonItem(
                 barButtonSystemItem: .trash,
                 target: self,
                 action: #selector(didTapDeleteButton)
             )
-            trashButton.tintColor = .red // トラッシュアイコンの色を赤に設定
-            navigationItem.rightBarButtonItem = trashButton
+            trashButton.tintColor = .red // ボタン色を赤に設定
+
+            let addButton = UIButton(type: .custom)
+            addButton.setImage(UIImage(systemName: "plus.rectangle.fill"), for: .normal) // SF Symbolsを利用
+            addButton.tintColor = .systemBlue
+            addButton.addTarget(self, action: #selector(didTapAddButton), for: .touchUpInside)
+
+            let addBarButtonItem = UIBarButtonItem(customView: addButton)
+
+            navigationItem.rightBarButtonItems = [trashButton, addBarButtonItem]
 
             navigationController?.setToolbarHidden(true, animated: true)
         }
+    }
+
+    @objc private func didTapAddButton() {
+        performSegue(withIdentifier: "AddSegue", sender: self)
     }
 
     // MARK: - 全選択ボタンアクション

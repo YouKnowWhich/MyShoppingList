@@ -57,7 +57,7 @@ struct ShoppingListWidgetEntryView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Today's Shopping List")
+            Text("🛒 Today")
                 .font(.headline)
                 .padding(.bottom, 8)
 
