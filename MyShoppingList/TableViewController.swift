@@ -64,6 +64,7 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
 
     // プラスボタンとトラッシュボタンを初期化するメソッド
     private func configureRightBarButtons() {
+        // トラッシュボタン
         let trashButton = UIBarButtonItem(
             barButtonSystemItem: .trash,
             target: self,
@@ -71,11 +72,11 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
         )
         trashButton.tintColor = .red
 
+        // カスタムデザインのプラスボタン
         let addButton = UIButton(type: .custom)
-        addButton.setImage(UIImage(systemName: "plus.rectangle.fill"), for: .normal) // SF Symbolsを利用
+        addButton.setImage(UIImage(systemName: "plus.rectangle.fill"), for: .normal)
         addButton.tintColor = .systemBlue
         addButton.addTarget(self, action: #selector(didTapAddButton), for: .touchUpInside)
-
         let addBarButtonItem = UIBarButtonItem(customView: addButton)
 
         // 初期状態ではトラッシュボタンとプラスボタンを表示
@@ -96,20 +97,12 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
 
     private func saveItems() {
         saveToUserDefaults(UserDefaultsKeys.items, data: items)
-
-        // WidgetKitが利用可能な場合のみタイムラインをリロード
-        if #available(iOS 14.0, *) {
-            WidgetCenter.shared.reloadAllTimelines()
-        }
+        updateWidgetTimeline()
     }
 
     private func savePurchasedItems() {
         saveToUserDefaults(UserDefaultsKeys.purchasedItems, data: purchasedItems)
-
-        // WidgetKitが利用可能な場合のみタイムラインをリロード
-        if #available(iOS 14.0, *) {
-            WidgetCenter.shared.reloadAllTimelines()
-        }
+        updateWidgetTimeline()
     }
 
     private func saveToUserDefaults<T: Encodable>(_ key: String, data: T) {
@@ -122,6 +115,12 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
         guard let userDefaults = UserDefaults(suiteName: suiteName),
               let data = userDefaults.data(forKey: key) else { return nil }
         return try? JSONDecoder().decode(T.self, from: data)
+    }
+
+    private func updateWidgetTimeline() {
+        if #available(iOS 14.0, *) {
+            WidgetCenter.shared.reloadAllTimelines()
+        }
     }
     // MARK: - アイテム操作
     func addItemBackToShoppingList(item: Item) {
@@ -157,11 +156,7 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
     private func updateDataAfterChange() {
         saveItems()
         savePurchasedItems()
-
-        // WidgetKit が利用可能な場合のみウィジェットを更新
-        if #available(iOS 14.0, *) {
-            WidgetCenter.shared.reloadAllTimelines()
-        }
+        updateWidgetTimeline()
     }
 
 
@@ -183,7 +178,7 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "Cell1", for: indexPath) as? ItemTableViewCell else {
-            fatalError("セルが見つかりません")
+            fatalError("Cell not found")
         }
         var item = items[indexPath.row]
         item.category = String(item.category.prefix(1))
