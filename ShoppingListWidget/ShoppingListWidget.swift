@@ -61,23 +61,50 @@ struct Provider: TimelineProvider {
 
 // MARK: - ウィジェットのビュー
 struct ShoppingListWidgetEntryView: View {
+    @Environment(\.widgetFamily) var family // ウィジェットサイズを取得
+
     var entry: ShoppingListWidgetEntry
 
     var body: some View {
+        Group {
+            switch family {
+            case .systemSmall:
+                systemSmallView(entry: entry)
+            case .systemMedium:
+                systemMediumView(entry: entry)
+            case .systemLarge:
+                systemLargeView(entry: entry)
+            default:
+                unsupportedView()
+            }
+        }
+        .containerBackground(Color.clear, for: .widget)
+    }
+
+    // MARK: - 小サイズウィジェット
+    private func systemSmallView(entry: ShoppingListWidgetEntry) -> some View {
+        VStack {
+            Text("🛒 未購入アイテム")
+                .font(.headline)
+            Text("\(entry.items.count) items")
+                .font(.body)
+                .foregroundColor(.secondary)
+        }
+        .padding()
+    }
+
+    // MARK: - 中サイズウィジェット
+    private func systemMediumView(entry: ShoppingListWidgetEntry) -> some View {
         VStack(alignment: .leading) {
-            // ウィジェットのタイトル
-            Text("🛒 Today")
+            Text("🛒 今日のリスト")
                 .font(.headline)
                 .padding(.bottom, 8)
-
-            // アイテムがない場合の表示
             if entry.items.isEmpty {
-                Text("No items for today").font(.subheadline)
+                Text("アイテムなし").font(.subheadline)
             } else {
-                // 最大5件のアイテムを表示
                 ForEach(entry.items.prefix(5), id: \.id) { item in
                     HStack {
-                        Text(item.name) // アイテム名
+                        Text(item.name)
                         Spacer()
                         Text(item.category.prefix(1))  // カテゴリの頭文字
                             .foregroundColor(.secondary)
@@ -87,7 +114,36 @@ struct ShoppingListWidgetEntryView: View {
             }
         }
         .padding()
-        .containerBackground(for: .widget) { Color.clear } // 背景を設定
+    }
+
+    // MARK: - 大サイズウィジェット
+    private func systemLargeView(entry: ShoppingListWidgetEntry) -> some View {
+        VStack(alignment: .leading) {
+            Text("🛒 今日の買い物リスト")
+                .font(.headline)
+                .padding(.bottom, 8)
+            if entry.items.isEmpty {
+                Text("アイテムなし").font(.subheadline)
+            } else {
+                ForEach(entry.items.prefix(10), id: \.id) { item in
+                    HStack {
+                        Text(item.name)
+                        Spacer()
+                        Text(item.category.prefix(1))  // カテゴリの頭文字
+                            .foregroundColor(.secondary)
+                    }
+                    .font(.body)
+                }
+            }
+        }
+        .padding()
+    }
+
+    // MARK: - 非対応サイズビュー
+    private func unsupportedView() -> some View {
+        Text("未対応のウィジェットサイズ")
+            .font(.caption)
+            .padding()
     }
 }
 
