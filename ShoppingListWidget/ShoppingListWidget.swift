@@ -62,8 +62,7 @@ struct Provider: TimelineProvider {
 // MARK: - ウィジェットのビュー
 struct ShoppingListWidgetEntryView: View {
     @Environment(\.widgetFamily) var family // ウィジェットサイズを取得
-
-    var entry: ShoppingListWidgetEntry
+    var entry: ShoppingListWidgetEntry  // 表示するエントリ
 
     var body: some View {
         Group {
@@ -84,10 +83,17 @@ struct ShoppingListWidgetEntryView: View {
     // MARK: - 小サイズウィジェット
     private func systemSmallView(entry: ShoppingListWidgetEntry) -> some View {
         VStack {
-            Text("🛒 未購入アイテム")
+            Text("🛒 リスト")
                 .font(.headline)
-            Text("\(entry.items.count) items")
-                .font(.body)
+                .padding(.bottom, 4)
+
+            // アイテム数を大きく表示
+            Text("\(entry.items.count)")
+                .font(.system(size: 48, weight: .bold, design: .rounded)) // 大きめのフォント
+                .foregroundColor(.primary)
+
+            Text("件")
+                .font(.subheadline)
                 .foregroundColor(.secondary)
         }
         .padding()
@@ -95,46 +101,68 @@ struct ShoppingListWidgetEntryView: View {
 
     // MARK: - 中サイズウィジェット
     private func systemMediumView(entry: ShoppingListWidgetEntry) -> some View {
-        VStack(alignment: .leading) {
-            Text("🛒 今日のリスト")
-                .font(.headline)
-                .padding(.bottom, 8)
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text("🛒 今日のリスト")
+                    .font(.headline)
+                Spacer()
+                Text("\(entry.items.count) 件")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.bottom, 8)
+
             if entry.items.isEmpty {
-                Text("アイテムなし").font(.subheadline)
+                Text("アイテムなし")
+                    .font(.subheadline)
             } else {
-                ForEach(entry.items.prefix(5), id: \.id) { item in
+                ForEach(entry.items.prefix(4), id: \.id) { item in
                     HStack {
                         Text(item.name)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
                         Spacer()
-                        Text(item.category.prefix(1))  // カテゴリの頭文字
+                        Text(item.category.prefix(1))
                             .foregroundColor(.secondary)
                     }
                     .font(.body)
                 }
             }
+            Spacer() // 余白を下に押し込む
         }
         .padding()
     }
 
     // MARK: - 大サイズウィジェット
     private func systemLargeView(entry: ShoppingListWidgetEntry) -> some View {
-        VStack(alignment: .leading) {
-            Text("🛒 今日の買い物リスト")
-                .font(.headline)
-                .padding(.bottom, 8)
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text("🛒 今日の買い物リスト")
+                    .font(.headline)
+                Spacer()
+                Text("\(entry.items.count) 件")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.bottom, 8)
+
             if entry.items.isEmpty {
-                Text("アイテムなし").font(.subheadline)
+                Text("アイテムなし")
+                    .font(.subheadline)
             } else {
                 ForEach(entry.items.prefix(10), id: \.id) { item in
                     HStack {
                         Text(item.name)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
                         Spacer()
-                        Text(item.category.prefix(1))  // カテゴリの頭文字
+                        Text(item.category.prefix(1))
                             .foregroundColor(.secondary)
                     }
                     .font(.body)
                 }
             }
+            Spacer() // 余白を下に押し込む
         }
         .padding()
     }
