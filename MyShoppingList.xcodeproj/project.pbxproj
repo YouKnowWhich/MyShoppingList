@@ -14,6 +14,10 @@
 		4F87B5EB2CFC388400313178 /* ShoppingListWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4F87B5D52CFC388200313178 /* ShoppingListWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4F87B5F52CFC503700313178 /* SharedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F87B5F42CFC503700313178 /* SharedModels.swift */; };
 		4F87B5F62CFC507A00313178 /* SharedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F87B5F42CFC503700313178 /* SharedModels.swift */; };
+		4F9AD62A2D0D479800458584 /* SharedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F87B5F42CFC503700313178 /* SharedModels.swift */; };
+		4F9AD6322D0D4F8900458584 /* UserDefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9AD6312D0D4F7F00458584 /* UserDefaultsManager.swift */; };
+		4F9AD6332D0D4F8900458584 /* UserDefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9AD6312D0D4F7F00458584 /* UserDefaultsManager.swift */; };
+		4F9AD6342D0D4F8900458584 /* UserDefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9AD6312D0D4F7F00458584 /* UserDefaultsManager.swift */; };
 		4FF4B0A02C60FF0C003ABC54 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF4B09F2C60FF0C003ABC54 /* AppDelegate.swift */; };
 		4FF4B0A22C60FF0C003ABC54 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF4B0A12C60FF0C003ABC54 /* SceneDelegate.swift */; };
 		4FF4B0A42C60FF0C003ABC54 /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF4B0A32C60FF0C003ABC54 /* TableViewController.swift */; };
@@ -31,6 +35,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4F87B5D42CFC388200313178;
 			remoteInfo = ShoppingListWidgetExtension;
+		};
+		4F9AD6252D0D471C00458584 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4FF4B0942C60FF0C003ABC54 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4FF4B09B2C60FF0C003ABC54;
+			remoteInfo = MyShoppingList;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -57,6 +68,8 @@
 		4F87B5F12CFC399F00313178 /* MyShoppingList.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MyShoppingList.entitlements; sourceTree = "<group>"; };
 		4F87B5F22CFC39C900313178 /* ShoppingListWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShoppingListWidgetExtension.entitlements; sourceTree = "<group>"; };
 		4F87B5F42CFC503700313178 /* SharedModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedModels.swift; sourceTree = "<group>"; };
+		4F9AD6212D0D471C00458584 /* MyShoppingListTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyShoppingListTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F9AD6312D0D4F7F00458584 /* UserDefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsManager.swift; sourceTree = "<group>"; };
 		4FF4B09C2C60FF0C003ABC54 /* MyShoppingList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyShoppingList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FF4B09F2C60FF0C003ABC54 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4FF4B0A12C60FF0C003ABC54 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -81,6 +94,7 @@
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		4F87B5DB2CFC388200313178 /* ShoppingListWidget */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (4F87B5EF2CFC388400313178 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = ShoppingListWidget; sourceTree = "<group>"; };
+		4F9AD6222D0D471C00458584 /* MyShoppingListTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = MyShoppingListTests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,6 +104,13 @@
 			files = (
 				4F87B5DA2CFC388200313178 /* SwiftUI.framework in Frameworks */,
 				4F87B5D82CFC388200313178 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4F9AD61E2D0D471C00458584 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -115,6 +136,7 @@
 		4F87B5F32CFC500D00313178 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				4F9AD6312D0D4F7F00458584 /* UserDefaultsManager.swift */,
 				4F87B5F42CFC503700313178 /* SharedModels.swift */,
 			);
 			path = Shared;
@@ -127,6 +149,7 @@
 				4F87B5F32CFC500D00313178 /* Shared */,
 				4FF4B09E2C60FF0C003ABC54 /* MyShoppingList */,
 				4F87B5DB2CFC388200313178 /* ShoppingListWidget */,
+				4F9AD6222D0D471C00458584 /* MyShoppingListTests */,
 				4F87B5D62CFC388200313178 /* Frameworks */,
 				4FF4B09D2C60FF0C003ABC54 /* Products */,
 			);
@@ -137,6 +160,7 @@
 			children = (
 				4FF4B09C2C60FF0C003ABC54 /* MyShoppingList.app */,
 				4F87B5D52CFC388200313178 /* ShoppingListWidgetExtension.appex */,
+				4F9AD6212D0D471C00458584 /* MyShoppingListTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -185,6 +209,29 @@
 			productReference = 4F87B5D52CFC388200313178 /* ShoppingListWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		4F9AD6202D0D471C00458584 /* MyShoppingListTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4F9AD6292D0D471C00458584 /* Build configuration list for PBXNativeTarget "MyShoppingListTests" */;
+			buildPhases = (
+				4F9AD61D2D0D471C00458584 /* Sources */,
+				4F9AD61E2D0D471C00458584 /* Frameworks */,
+				4F9AD61F2D0D471C00458584 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4F9AD6262D0D471C00458584 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				4F9AD6222D0D471C00458584 /* MyShoppingListTests */,
+			);
+			name = MyShoppingListTests;
+			packageProductDependencies = (
+			);
+			productName = MyShoppingListTests;
+			productReference = 4F9AD6212D0D471C00458584 /* MyShoppingListTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		4FF4B09B2C60FF0C003ABC54 /* MyShoppingList */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4FF4B0B02C60FF0D003ABC54 /* Build configuration list for PBXNativeTarget "MyShoppingList" */;
@@ -211,11 +258,15 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1610;
+				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1540;
 				TargetAttributes = {
 					4F87B5D42CFC388200313178 = {
 						CreatedOnToolsVersion = 16.1;
+					};
+					4F9AD6202D0D471C00458584 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 4FF4B09B2C60FF0C003ABC54;
 					};
 					4FF4B09B2C60FF0C003ABC54 = {
 						CreatedOnToolsVersion = 15.4;
@@ -237,12 +288,20 @@
 			targets = (
 				4FF4B09B2C60FF0C003ABC54 /* MyShoppingList */,
 				4F87B5D42CFC388200313178 /* ShoppingListWidgetExtension */,
+				4F9AD6202D0D471C00458584 /* MyShoppingListTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		4F87B5D32CFC388200313178 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4F9AD61F2D0D471C00458584 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -266,7 +325,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F9AD6332D0D4F8900458584 /* UserDefaultsManager.swift in Sources */,
 				4F87B5F62CFC507A00313178 /* SharedModels.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4F9AD61D2D0D471C00458584 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F9AD62A2D0D479800458584 /* SharedModels.swift in Sources */,
+				4F9AD6342D0D4F8900458584 /* UserDefaultsManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -279,6 +348,7 @@
 				4F87B5A92CFA21A200313178 /* Notifications.swift in Sources */,
 				4F42530A2CA4376700906CA7 /* PurchasedItemsViewController.swift in Sources */,
 				4FF4B0B42C672C68003ABC54 /* AddItemViewController.swift in Sources */,
+				4F9AD6322D0D4F8900458584 /* UserDefaultsManager.swift in Sources */,
 				4FF4B0B62C672D45003ABC54 /* ItemTableViewCell.swift in Sources */,
 				4FF4B0A02C60FF0C003ABC54 /* AppDelegate.swift in Sources */,
 				4FF4B0A22C60FF0C003ABC54 /* SceneDelegate.swift in Sources */,
@@ -292,6 +362,11 @@
 			isa = PBXTargetDependency;
 			target = 4F87B5D42CFC388200313178 /* ShoppingListWidgetExtension */;
 			targetProxy = 4F87B5E92CFC388400313178 /* PBXContainerItemProxy */;
+		};
+		4F9AD6262D0D471C00458584 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4FF4B09B2C60FF0C003ABC54 /* MyShoppingList */;
+			targetProxy = 4F9AD6252D0D471C00458584 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -328,7 +403,7 @@
 				INFOPLIST_FILE = ShoppingListWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ShoppingListWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -357,7 +432,7 @@
 				INFOPLIST_FILE = ShoppingListWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ShoppingListWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -370,6 +445,46 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		4F9AD6272D0D471C00458584 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 4WRX528UUC;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yuya4514-icloud.MyShoppingListTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MyShoppingList.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MyShoppingList";
+			};
+			name = Debug;
+		};
+		4F9AD6282D0D471C00458584 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 4WRX528UUC;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yuya4514-icloud.MyShoppingListTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MyShoppingList.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MyShoppingList";
 			};
 			name = Release;
 		};
@@ -558,6 +673,15 @@
 			buildConfigurations = (
 				4F87B5ED2CFC388400313178 /* Debug */,
 				4F87B5EE2CFC388400313178 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4F9AD6292D0D471C00458584 /* Build configuration list for PBXNativeTarget "MyShoppingListTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4F9AD6272D0D471C00458584 /* Debug */,
+				4F9AD6282D0D471C00458584 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
