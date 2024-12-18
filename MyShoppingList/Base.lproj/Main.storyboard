@@ -222,10 +222,10 @@
             </objects>
             <point key="canvasLocation" x="2687.7862595419847" y="-27.464788732394368"/>
         </scene>
-        <!--Tab Bar Controller-->
+        <!--Custom Tab Bar Controller-->
         <scene sceneID="Avx-r8-U8V">
             <objects>
-                <tabBarController id="Gaq-Zx-HAu" sceneMemberID="viewController">
+                <tabBarController id="Gaq-Zx-HAu" customClass="CustomTabBarController" customModule="MyShoppingList" customModuleProvider="target" sceneMemberID="viewController">
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="yNh-JO-DzN">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="49"/>
                         <autoresizingMask key="autoresizingMask"/>

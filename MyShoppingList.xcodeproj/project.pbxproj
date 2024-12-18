@@ -18,6 +18,7 @@
 		4F9AD6322D0D4F8900458584 /* UserDefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9AD6312D0D4F7F00458584 /* UserDefaultsManager.swift */; };
 		4F9AD6332D0D4F8900458584 /* UserDefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9AD6312D0D4F7F00458584 /* UserDefaultsManager.swift */; };
 		4F9AD6342D0D4F8900458584 /* UserDefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9AD6312D0D4F7F00458584 /* UserDefaultsManager.swift */; };
+		4F9AD63C2D13311900458584 /* CustomTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9AD63B2D13311900458584 /* CustomTabBarController.swift */; };
 		4FF4B0A02C60FF0C003ABC54 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF4B09F2C60FF0C003ABC54 /* AppDelegate.swift */; };
 		4FF4B0A22C60FF0C003ABC54 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF4B0A12C60FF0C003ABC54 /* SceneDelegate.swift */; };
 		4FF4B0A42C60FF0C003ABC54 /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF4B0A32C60FF0C003ABC54 /* TableViewController.swift */; };
@@ -70,6 +71,7 @@
 		4F87B5F42CFC503700313178 /* SharedModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedModels.swift; sourceTree = "<group>"; };
 		4F9AD6212D0D471C00458584 /* MyShoppingListTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyShoppingListTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F9AD6312D0D4F7F00458584 /* UserDefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsManager.swift; sourceTree = "<group>"; };
+		4F9AD63B2D13311900458584 /* CustomTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBarController.swift; sourceTree = "<group>"; };
 		4FF4B09C2C60FF0C003ABC54 /* MyShoppingList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyShoppingList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FF4B09F2C60FF0C003ABC54 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4FF4B0A12C60FF0C003ABC54 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -175,6 +177,7 @@
 				4F4253092CA4376700906CA7 /* PurchasedItemsViewController.swift */,
 				4FF4B0B32C672C68003ABC54 /* AddItemViewController.swift */,
 				4FF4B0B52C672D45003ABC54 /* ItemTableViewCell.swift */,
+				4F9AD63B2D13311900458584 /* CustomTabBarController.swift */,
 				4F87B5A82CFA21A200313178 /* Notifications.swift */,
 				4FF4B0A52C60FF0C003ABC54 /* Main.storyboard */,
 				4FF4B0A82C60FF0D003ABC54 /* Assets.xcassets */,
@@ -345,6 +348,7 @@
 			files = (
 				4F87B5F52CFC503700313178 /* SharedModels.swift in Sources */,
 				4FF4B0A42C60FF0C003ABC54 /* TableViewController.swift in Sources */,
+				4F9AD63C2D13311900458584 /* CustomTabBarController.swift in Sources */,
 				4F87B5A92CFA21A200313178 /* Notifications.swift in Sources */,
 				4F42530A2CA4376700906CA7 /* PurchasedItemsViewController.swift in Sources */,
 				4FF4B0B42C672C68003ABC54 /* AddItemViewController.swift in Sources */,
