@@ -13,14 +13,25 @@ class CustomTabBarController: UITabBarController, UITabBarControllerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.delegate = self
+
+        // タブバーの外観を初期設定
         configureTabBarAppearance()
     }
 
-    /// ダークモードに対応したタブバーの外観を設定
+    /// 外観モードの変更を検知してタブバーの外観を更新
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        // 外観モードが変更された場合
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            configureTabBarAppearance()
+        }
+    }
+
+    /// タブバーの外観を設定
     private func configureTabBarAppearance() {
         let appearance = UITabBarAppearance()
 
-        // ダークモード対応
         if traitCollection.userInterfaceStyle == .dark {
             appearance.backgroundColor = UIColor.black
             appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
@@ -52,38 +63,9 @@ class CustomTabBarController: UITabBarController, UITabBarControllerDelegate {
         if #available(iOS 15.0, *) {
             tabBar.scrollEdgeAppearance = appearance
         }
-    }
 
-    /// タブ選択時にアニメーションを追加
-    override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
-        guard let index = tabBar.items?.firstIndex(of: item),
-              let tabBarButton = tabBar.subviews[safe: index + 1] else { return }
-
-        // バウンドアニメーション
-        UIView.animate(withDuration: 0.2,
-                       animations: {
-                           tabBarButton.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
-                       }) { _ in
-            UIView.animate(withDuration: 0.2) {
-                tabBarButton.transform = .identity
-            }
-        }
-    }
-
-    /// ダークモードやライトモードの切り替えをリアルタイムで検知
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-
-        // ダークモードとライトモードが切り替わった場合のみ外観を再設定
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            configureTabBarAppearance()
-        }
-    }
-}
-
-// Array安全アクセスのエクステンション（タブバーサブビュー取得用）
-extension Array {
-    subscript(safe index: Index) -> Element? {
-        return indices.contains(index) ? self[index] : nil
+        // タブバーの再描画を強制
+        tabBar.setNeedsLayout()
+        tabBar.layoutIfNeeded()
     }
 }
