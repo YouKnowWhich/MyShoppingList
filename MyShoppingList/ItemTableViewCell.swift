@@ -58,7 +58,7 @@ class ItemTableViewCell: UITableViewCell {
         // 買い物リストの場合のみ editButton を設定
         if isShoppingList {
             editButton?.isHidden = false
-            editButton?.setImage(UIImage(systemName: "pencil"), for: .normal)
+            editButton?.setImage(UIImage(systemName: "ellipsis.circle"), for: .normal)
             editButton?.tintColor = .systemBlue
         } else {
             editButton?.isHidden = true
