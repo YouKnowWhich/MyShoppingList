@@ -8,9 +8,12 @@
 
 import UIKit
 
-// MARK: - ItemTableViewCellDelegate
-protocol ItemTableViewCellDelegate: AnyObject {
+protocol ItemToggleDelegate: AnyObject {
     func didToggleCheck(for cell: ItemTableViewCell)
+}
+
+protocol ItemEditDelegate: AnyObject {
+    func didTapEditButton(for cell: ItemTableViewCell)
 }
 
 // MARK: - ItemTableViewCell
@@ -21,9 +24,12 @@ class ItemTableViewCell: UITableViewCell {
     @IBOutlet weak var purchaseDateLabel: UILabel!
     @IBOutlet weak var categoryLabel: UILabel!
     @IBOutlet weak var nameLabel: UILabel!
+    @IBOutlet weak var editButton: UIButton! // 買い物リスト用のEditButton
 
     // MARK: - プロパティ
-    weak var delegate: ItemTableViewCellDelegate?
+    weak var toggleDelegate: ItemToggleDelegate?
+    weak var editDelegate: ItemEditDelegate?
+
     private var isChecked: Bool = false
 
     private let suiteName = "group.com.example.MyShoppingList" // App Groups のグループ名
@@ -36,7 +42,8 @@ class ItemTableViewCell: UITableViewCell {
     }()
 
     // MARK: - 公開メソッド
-    func configure(with item: Item) {
+    /// `isShoppingList` が true の場合のみ EditButton を表示
+    func configure(with item: Item, isShoppingList: Bool) {
         setupFontStyles()
         setupDynamicTypeSupport()
         setupNameLabelAppearance()
@@ -47,14 +54,27 @@ class ItemTableViewCell: UITableViewCell {
         purchaseDateLabel.text = item.purchaseDate.map(Self.dateFormatter.string(from:)) ?? "No Date"
         categoryLabel.text = item.category
         nameLabel.text = item.name
+
+        // 買い物リストの場合のみ editButton を設定
+        if isShoppingList {
+            editButton?.isHidden = false
+            editButton?.setImage(UIImage(systemName: "pencil"), for: .normal)
+            editButton?.tintColor = .systemBlue
+        } else {
+            editButton?.isHidden = true
+        }
     }
 
     // MARK: - アクション
     @IBAction private func toggleCheck(_ sender: UIButton) {
         isChecked.toggle()
         updateCheckBoxAppearance()
-        delegate?.didToggleCheck(for: self)
+        toggleDelegate?.didToggleCheck(for: self)
         saveCheckStateToUserDefaults()
+    }
+
+    @IBAction func editButtonTapped(_ sender: UIButton) {
+        editDelegate?.didTapEditButton(for: self)
     }
 
     // MARK: - プライベートメソッド

@@ -12,7 +12,7 @@ import WidgetKit
 #endif
 
 // MARK: - TableViewController: メイン画面のコントローラ
-class TableViewController: UITableViewController, ItemTableViewCellDelegate, PurchasedItemsViewControllerDelegate {
+class TableViewController: UITableViewController, ItemToggleDelegate, ItemEditDelegate, PurchasedItemsViewControllerDelegate {
 
     // MARK: - 定数
     private enum UserDefaultsKeys {
@@ -182,16 +182,17 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
         }
         var item = items[indexPath.row]
         item.category = String(item.category.prefix(1))
-        cell.configure(with: item)
-        cell.delegate = self
+        cell.configure(with: item, isShoppingList: true) // 買い物リスト画面なので true
+        cell.toggleDelegate = self
+        cell.editDelegate = self
         return cell
     }
 
     // MARK: - テーブルビュー アクション
-    override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
-        editIndexPath = indexPath
-        performSegue(withIdentifier: "EditSegue", sender: indexPath)
-    }
+//    override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
+//        editIndexPath = indexPath
+//        performSegue(withIdentifier: "EditSegue", sender: indexPath)
+//    }
 
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         guard editingStyle == .delete else { return }
@@ -357,6 +358,16 @@ class TableViewController: UITableViewController, ItemTableViewCellDelegate, Pur
         selectedItem.toggleIsChecked()
         items[indexPath.row] = selectedItem
         selectedItem.isChecked ? moveToPurchasedItems(item: selectedItem, at: indexPath) : moveToShoppingList(item: selectedItem)
+    }
+
+    // デリゲートメソッドを実装
+    func didTapEditButton(for cell: ItemTableViewCell) {
+        // 編集ボタンがタップされたときの処理を実装
+        guard let indexPath = tableView.indexPath(for: cell) else { return }
+        editIndexPath = indexPath
+
+        // 編集画面に遷移
+        performSegue(withIdentifier: "EditSegue", sender: indexPath)
     }
 }
 

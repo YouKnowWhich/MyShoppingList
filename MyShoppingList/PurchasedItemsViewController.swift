@@ -19,7 +19,7 @@ protocol PurchasedItemsViewControllerDelegate: AnyObject {
 }
 
 // MARK: - PurchasedItemsViewController
-class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDelegate {
+class PurchasedItemsViewController: UITableViewController, ItemToggleDelegate {
 
     // MARK: - 定数
     private let purchasedItemsKey = "purchasedItems" // UserDefaultsキー
@@ -94,6 +94,11 @@ class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDele
         }
     }
 
+    // EditButtonは不要なため空実装
+    func didTapEditButton(for cell: ItemTableViewCell) {
+        // 何もしない
+    }
+
     // MARK: - データ操作
     private func loadPurchasedItems() {
         guard let userDefaults = UserDefaults(suiteName: suiteName),
@@ -150,8 +155,8 @@ class PurchasedItemsViewController: UITableViewController, ItemTableViewCellDele
         }
         var item = purchasedItems[indexPath.row]
         item.category = String(item.category.prefix(1))
-        cell.configure(with: item)
-        cell.delegate = self
+        cell.configure(with: item, isShoppingList: false) // 購入済リストなので false
+        cell.toggleDelegate = self
         return cell
     }
 
