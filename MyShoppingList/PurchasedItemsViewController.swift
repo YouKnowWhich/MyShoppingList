@@ -31,7 +31,6 @@ class PurchasedItemsViewController: UITableViewController, ItemToggleDelegate {
 
     @IBOutlet weak var segmentedControl: UISegmentedControl!
 
-    private var isDeleteMode = false { didSet { toggleDeleteMode() } }
     private var selectedItems = Set<IndexPath>()
 
     // MARK: - ライフサイクル
@@ -155,7 +154,7 @@ class PurchasedItemsViewController: UITableViewController, ItemToggleDelegate {
         }
         var item = purchasedItems[indexPath.row]
         item.category = String(item.category.prefix(1))
-        cell.configure(with: item, isShoppingList: false) // 購入済リストなので false
+        cell.configure(with: item, isShoppingList: false, isDeleteMode: isDeleteMode) // isShoppingList を false に設定
         cell.toggleDelegate = self
         return cell
     }
@@ -178,6 +177,7 @@ class PurchasedItemsViewController: UITableViewController, ItemToggleDelegate {
             selectedItems.removeAll()
             tableView.allowsMultipleSelectionDuringEditing = true
             tableView.setEditing(true, animated: true)
+            tableView.reloadData() // セルの非活性化を反映
             //「キャンセル」ボタンを設定
             let cancelButton = UIButton(type: .system)
             cancelButton.setTitle("キャンセル", for: .normal)
@@ -194,6 +194,7 @@ class PurchasedItemsViewController: UITableViewController, ItemToggleDelegate {
         } else {
             // 通常モードに戻る
             tableView.setEditing(false, animated: true)
+            tableView.reloadData() // セルの活性化を反映
             // ボタンをトラッシュアイコンに戻す
             let trashButton = UIBarButtonItem(
                 barButtonSystemItem: .trash,
@@ -243,6 +244,17 @@ class PurchasedItemsViewController: UITableViewController, ItemToggleDelegate {
         savePurchasedItems()
         tableView.reloadData()
         isDeleteMode = false
+    }
+
+    private var isDeleteMode = false {
+        didSet {
+            toggleDeleteMode()
+            toggleTabBarInteraction()
+        }
+    }
+
+    private func toggleTabBarInteraction() {
+        tabBarController?.tabBar.items?.forEach { $0.isEnabled = !isDeleteMode }
     }
 
     // MARK: - テーブルビューのデリゲートメソッド

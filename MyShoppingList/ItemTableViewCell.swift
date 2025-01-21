@@ -31,6 +31,7 @@ class ItemTableViewCell: UITableViewCell {
     weak var editDelegate: ItemEditDelegate?
 
     private var isChecked: Bool = false
+    private var isDeleteMode = false
 
     private let suiteName = "group.com.example.MyShoppingList" // App Groups のグループ名
 
@@ -43,13 +44,21 @@ class ItemTableViewCell: UITableViewCell {
 
     // MARK: - 公開メソッド
     /// `isShoppingList` が true の場合のみ EditButton を表示
-    func configure(with item: Item, isShoppingList: Bool) {
+    func configure(with item: Item, isShoppingList: Bool, isDeleteMode: Bool) {
         setupFontStyles()
         setupDynamicTypeSupport()
         setupNameLabelAppearance()
+        updateCheckBoxAppearance()
 
         isChecked = item.isChecked
-        updateCheckBoxAppearance()
+
+        self.isDeleteMode = isDeleteMode
+        checkBoxButton.isEnabled = !isDeleteMode
+        // 編集ボタンが存在する場合のみ設定
+        if let editButton = editButton {
+            editButton.isEnabled = !isDeleteMode
+            editButton.isHidden = isDeleteMode || !isShoppingList
+        }
 
         purchaseDateLabel.text = item.purchaseDate.map(Self.dateFormatter.string(from:)) ?? "No Date"
         categoryLabel.text = item.category
@@ -67,6 +76,7 @@ class ItemTableViewCell: UITableViewCell {
 
     // MARK: - アクション
     @IBAction private func toggleCheck(_ sender: UIButton) {
+        guard !isDeleteMode else { return }
         isChecked.toggle()
         updateCheckBoxAppearance()
         toggleDelegate?.didToggleCheck(for: self)
@@ -74,6 +84,7 @@ class ItemTableViewCell: UITableViewCell {
     }
 
     @IBAction func editButtonTapped(_ sender: UIButton) {
+        guard !isDeleteMode else { return }
         editDelegate?.didTapEditButton(for: self)
     }
 

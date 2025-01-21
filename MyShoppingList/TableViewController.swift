@@ -31,7 +31,6 @@ class TableViewController: UITableViewController, ItemToggleDelegate, ItemEditDe
         }
     }
     private var editIndexPath: IndexPath?
-    private var isDeleteMode = false { didSet { toggleDeleteMode() } }
     private var selectedItems = Set<IndexPath>()
 
     @IBOutlet weak var segmentedControl: UISegmentedControl!
@@ -182,7 +181,7 @@ class TableViewController: UITableViewController, ItemToggleDelegate, ItemEditDe
         }
         var item = items[indexPath.row]
         item.category = String(item.category.prefix(1))
-        cell.configure(with: item, isShoppingList: true) // 買い物リスト画面なので true
+        cell.configure(with: item, isShoppingList: true, isDeleteMode: isDeleteMode)
         cell.toggleDelegate = self
         cell.editDelegate = self
         return cell
@@ -249,6 +248,7 @@ class TableViewController: UITableViewController, ItemToggleDelegate, ItemEditDe
             selectedItems.removeAll()
             tableView.allowsMultipleSelectionDuringEditing = true
             tableView.setEditing(true, animated: true)
+            tableView.reloadData() // セルの非活性化を反映
 
             // 「キャンセル」ボタンを設定
             let cancelButton = UIBarButtonItem(
@@ -272,6 +272,7 @@ class TableViewController: UITableViewController, ItemToggleDelegate, ItemEditDe
         } else {
             // 通常モードに戻る
             tableView.setEditing(false, animated: true)
+            tableView.reloadData() // セルの活性化を反映
 
             // 通常モードの右上ボタン (トラッシュボタンと追加ボタン) を復元
             let trashButton = UIBarButtonItem(
@@ -368,6 +369,17 @@ class TableViewController: UITableViewController, ItemToggleDelegate, ItemEditDe
 
         // 編集画面に遷移
         performSegue(withIdentifier: "EditSegue", sender: indexPath)
+    }
+
+    private var isDeleteMode = false {
+        didSet {
+            toggleDeleteMode()
+            toggleTabBarInteraction()
+        }
+    }
+
+    private func toggleTabBarInteraction() {
+        tabBarController?.tabBar.items?.forEach { $0.isEnabled = !isDeleteMode }
     }
 }
 
