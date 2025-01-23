@@ -9,10 +9,12 @@
 import UIKit
 
 // MARK: - AddItemViewControllerDelegate
+/// アイテム追加画面のデリゲートプロトコル
 protocol AddItemViewControllerDelegate: AnyObject {
     func didSaveItem()
 }
 
+// MARK: - AddItemViewController
 class AddItemViewController: UIViewController {
 
     // MARK: - モード設定 (追加/編集)
@@ -37,19 +39,18 @@ class AddItemViewController: UIViewController {
 
     // MARK: - 定数
     private let suiteName = "group.com.example.MyShoppingList" // App Groups のグループ名
-
-    // MARK: - プロパティ
-    weak var delegate: AddItemViewControllerDelegate?
-    var mode = Mode.add
-    private(set) var editedItem: Item?
-
-    private let maxItemNameLength = 30  // アイテム名の最大長
+    private let maxItemNameLength = 30  // アイテム名の最大文字数
     private let categories: [String] = [
         "📕本・コミック・雑誌", "💿DVD・ミュージック・ゲーム", "📺家電・カメラ・AV機器",
         "💻パソコン・オフィス用品", "🍽ホーム＆キッチン・ペット・DIY", "🥐食品・飲料",
         "🧴ドラッグストア・ビューティー", "🍼ベビー・おもちゃ・ホビー", "👕服・シューズ・バッグ・腕時計",
         "🏕スポーツ＆アウトドア", "🚗車＆バイク・産業・研究開発"
     ]
+
+    // MARK: - プロパティ
+    weak var delegate: AddItemViewControllerDelegate?
+    var mode = Mode.add
+    private(set) var editedItem: Item?
 
     // MARK: - アウトレット
     @IBOutlet weak var datePicker: UIDatePicker!
@@ -64,6 +65,7 @@ class AddItemViewController: UIViewController {
     }
 
     // MARK: - 初期設定
+    /// 画面のUIをセットアップ
     private func setupUI() {
         configurePickerView()
         configureTextField()
@@ -71,16 +73,19 @@ class AddItemViewController: UIViewController {
         updateSaveButtonState()
     }
 
+    /// ピッカービューの設定
     private func configurePickerView() {
         categoryPickerView.dataSource = self
         categoryPickerView.delegate = self
     }
 
+    /// テキストフィールドの設定
     private func configureTextField() {
         nameTextField.delegate = self
         nameTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
     }
 
+    /// 初期値の設定
     private func initializeValues() {
         let midnightToday = Calendar.current.startOfDay(for: Date())
 
@@ -98,7 +103,7 @@ class AddItemViewController: UIViewController {
     }
 
     // MARK: - ボタンアクション
-    // セーブボタン押下時の処理
+    // 保存ボタン押下時の処理
     @IBAction private func pressSaveButton(_ sender: UIBarButtonItem) {
         guard let itemName = nameTextField.text, !itemName.isEmpty else {
             showAlert(message: "アイテム名を入力してください。")
@@ -112,7 +117,7 @@ class AddItemViewController: UIViewController {
 
         createItem(name: itemName)
         performSegue(withIdentifier: mode.saveButtonSegueIdentifier, sender: sender)
-        delegate?.didSaveItem() // デリゲートを呼び出す
+        delegate?.didSaveItem()
     }
 
     // キャンセルボタン押下時の処理
@@ -120,7 +125,8 @@ class AddItemViewController: UIViewController {
         performSegue(withIdentifier: mode.cancelButtonSegueIdentifier, sender: sender)
     }
 
-    // MARK: - アイテム作成と重複チェック
+    // MARK: - アイテム操作
+    /// アイテムを作成する
     private func createItem(name: String) {
         let selectedCategory = categories[categoryPickerView.selectedRow(inComponent: 0)]
         let selectedDate = datePicker.date
@@ -146,6 +152,7 @@ class AddItemViewController: UIViewController {
         )
     }
 
+    /// アイテムの重複を確認
     private func isDuplicateItem(name: String) -> Bool {
         guard let existingItems = retrieveExistingItems() else { return false }
 
@@ -156,31 +163,32 @@ class AddItemViewController: UIViewController {
     }
 
     // MARK: - ユーティリティ
+    /// エラーメッセージを表示
     private func showAlert(message: String) {
         let alert = UIAlertController(title: "入力エラー", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
 
-    // 未購入アイテムのリストを取得
+    /// 既存のアイテムを取得
     private func retrieveExistingItems() -> [Item]? {
         guard let userDefaults = UserDefaults(suiteName: suiteName),
               let data = userDefaults.data(forKey: "items") else { return nil }
         return try? JSONDecoder().decode([Item].self, from: data)
     }
 
-    // テキストフィールド変更時の保存ボタン状態更新
+    /// テキストフィールド変更時に保存ボタンの状態を更新
     @objc private func textFieldDidChange(_ textField: UITextField) {
         updateSaveButtonState()
     }
 
+    /// 保存ボタンの状態を更新
     private func updateSaveButtonState() {
         saveButton.isEnabled = !(nameTextField.text?.isEmpty ?? true)
     }
 }
 
 // MARK: - UIPickerViewDataSource / UIPickerViewDelegate
-
 extension AddItemViewController: UIPickerViewDataSource, UIPickerViewDelegate {
     func numberOfComponents(in pickerView: UIPickerView) -> Int { return 1 }
 
@@ -201,10 +209,9 @@ extension AddItemViewController: UIPickerViewDataSource, UIPickerViewDelegate {
     }
 }
 
-
-// MARK: - UITextFieldDelegate (文字数制限)
-
+// MARK: - UITextFieldDelegate
 extension AddItemViewController: UITextFieldDelegate {
+    /// テキストフィールドの文字数制限
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let currentText = textField.text ?? ""
         guard let stringRange = Range(range, in: currentText) else { return false }

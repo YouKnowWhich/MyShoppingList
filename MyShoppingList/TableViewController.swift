@@ -30,8 +30,15 @@ class TableViewController: UITableViewController, ItemToggleDelegate, ItemEditDe
             NotificationCenter.default.post(name: .purchasedItemsUpdated, object: nil)
         }
     }
+
     private var editIndexPath: IndexPath?
     private var selectedItems = Set<IndexPath>()
+    private var isDeleteMode = false {
+        didSet {
+            toggleDeleteMode()
+            toggleTabBarInteraction()
+        }
+    }
 
     @IBOutlet weak var segmentedControl: UISegmentedControl!
 
@@ -46,24 +53,25 @@ class TableViewController: UITableViewController, ItemToggleDelegate, ItemEditDe
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         refreshData()
-        configureRightBarButtons() // プラスボタンを初期化
+        configureRightBarButtons()
     }
 
-    // MARK: - 初期設定
+    // MARK: - 初期設定メソッド
+    /// テーブルビューの設定
     private func configureTableView() {
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 44
     }
 
+    /// 購入済アイテム画面のデリゲート設定
     private func setupPurchasedItemsDelegate() {
         tabBarController?.viewControllers?
             .compactMap { ($0 as? UINavigationController)?.topViewController as? PurchasedItemsViewController }
             .forEach { $0.delegate = self }
     }
 
-    // プラスボタンとトラッシュボタンを初期化するメソッド
+    /// ナビゲーションバーのボタンを設定
     private func configureRightBarButtons() {
-        // トラッシュボタン
         let trashButton = UIBarButtonItem(
             barButtonSystemItem: .trash,
             target: self,
@@ -71,57 +79,63 @@ class TableViewController: UITableViewController, ItemToggleDelegate, ItemEditDe
         )
         trashButton.tintColor = .red
 
-        // カスタムデザインのプラスボタン
         let addButton = UIButton(type: .custom)
         addButton.setImage(UIImage(systemName: "plus.rectangle.fill"), for: .normal)
         addButton.tintColor = .systemBlue
         addButton.addTarget(self, action: #selector(didTapAddButton), for: .touchUpInside)
-        let addBarButtonItem = UIBarButtonItem(customView: addButton)
 
-        // 初期状態ではトラッシュボタンとプラスボタンを表示
+        let addBarButtonItem = UIBarButtonItem(customView: addButton)
         navigationItem.rightBarButtonItems = [trashButton, addBarButtonItem]
     }
 
     // MARK: - データの保存と読み込み
+    /// データをUserDefaultsから読み込む
     private func loadData() {
         items = loadFromUserDefaults(UserDefaultsKeys.items) ?? []
         purchasedItems = loadFromUserDefaults(UserDefaultsKeys.purchasedItems) ?? []
     }
 
+    /// テーブルビューをリロードしてデータを更新
     private func refreshData() {
         loadData()
         tableView.reloadData()
     }
 
-
+    /// 未購入アイテムを保存
     private func saveItems() {
         saveToUserDefaults(UserDefaultsKeys.items, data: items)
         updateWidgetTimeline()
     }
 
+    /// 購入済アイテムを保存
     private func savePurchasedItems() {
         saveToUserDefaults(UserDefaultsKeys.purchasedItems, data: purchasedItems)
         updateWidgetTimeline()
     }
 
+    /// データをUserDefaultsに保存
     private func saveToUserDefaults<T: Encodable>(_ key: String, data: T) {
         guard let encodedData = try? JSONEncoder().encode(data),
               let userDefaults = UserDefaults(suiteName: suiteName) else { return }
         userDefaults.set(encodedData, forKey: key)
     }
 
+    /// UserDefaultsからデータを読み込む
     private func loadFromUserDefaults<T: Decodable>(_ key: String) -> T? {
         guard let userDefaults = UserDefaults(suiteName: suiteName),
               let data = userDefaults.data(forKey: key) else { return nil }
         return try? JSONDecoder().decode(T.self, from: data)
     }
 
+    /// ウィジェットタイムラインを更新
     private func updateWidgetTimeline() {
         if #available(iOS 14.0, *) {
             WidgetCenter.shared.reloadAllTimelines()
         }
     }
-    // MARK: - アイテム操作
+
+    // MARK: - アイテム操作メソッド
+    /// アイテムをショッピングリストに戻す
     func addItemBackToShoppingList(item: Item) {
         guard !items.contains(where: { $0.id == item.id }) else { return }
         var newItem = item
@@ -130,6 +144,7 @@ class TableViewController: UITableViewController, ItemToggleDelegate, ItemEditDe
         tableView.reloadData()
     }
 
+    /// アイテムを購入済リストに移動
     private func moveToPurchasedItems(item: Item, at indexPath: IndexPath) {
         guard !purchasedItems.contains(where: { $0.id == item.id }) else { return }
         purchasedItems.append(item)
@@ -137,21 +152,20 @@ class TableViewController: UITableViewController, ItemToggleDelegate, ItemEditDe
         updateDataAfterChange()
         tableView.deleteRows(at: [indexPath], with: .automatic)
 
-        // ウィジェットを更新
         WidgetCenter.shared.reloadAllTimelines()
     }
 
-
+    /// アイテムを未購入リストに移動
     private func moveToShoppingList(item: Item) {
         guard !items.contains(where: { $0.id == item.id }) else { return }
         items.append(item)
         purchasedItems.removeAll { $0.id == item.id }
         updateDataAfterChange()
 
-        // ウィジェットを更新
         WidgetCenter.shared.reloadAllTimelines()
     }
 
+    /// データ変更後の処理
     private func updateDataAfterChange() {
         saveItems()
         savePurchasedItems()
@@ -187,54 +201,10 @@ class TableViewController: UITableViewController, ItemToggleDelegate, ItemEditDe
         return cell
     }
 
-    // MARK: - テーブルビュー アクション
-//    override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
-//        editIndexPath = indexPath
-//        performSegue(withIdentifier: "EditSegue", sender: indexPath)
-//    }
-
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         guard editingStyle == .delete else { return }
         items.remove(at: indexPath.row)
         tableView.deleteRows(at: [indexPath], with: .automatic)
-    }
-
-    // MARK: - セグエと画面遷移
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard let addVC = (segue.destination as? UINavigationController)?.topViewController as? AddItemViewController else { return }
-
-        if segue.identifier == "EditSegue", let indexPath = sender as? IndexPath {
-            addVC.mode = .edit(items[indexPath.row])
-        } else if segue.identifier == "AddSegue" {
-            addVC.mode = .add
-        }
-
-        // デリゲートを設定
-        addVC.delegate = self
-    }
-
-    @IBAction func exitFromAddByCancel(segue: UIStoryboardSegue) {
-    }
-
-    @IBAction func exitFromAddBySave(segue: UIStoryboardSegue) {
-        guard let addVC = segue.source as? AddItemViewController, let item = addVC.editedItem else { return }
-        items.append(item)
-        tableView.insertRows(at: [IndexPath(row: items.count - 1, section: 0)], with: .automatic)
-
-        // ウィジェットを更新
-        WidgetCenter.shared.reloadAllTimelines()
-    }
-
-    @IBAction func exitFromEditByCancel(segue: UIStoryboardSegue) {
-    }
-
-    @IBAction func exitFromEditBySave(segue: UIStoryboardSegue) {
-        guard let addVC = segue.source as? AddItemViewController,
-              let editedItem = addVC.editedItem,
-              let indexPath = editIndexPath else { return }
-        items[indexPath.row] = editedItem
-        tableView.reloadRows(at: [indexPath], with: .automatic)
-        editIndexPath = nil
     }
 
     // MARK: - 削除モード操作
@@ -244,25 +214,21 @@ class TableViewController: UITableViewController, ItemToggleDelegate, ItemEditDe
 
     private func toggleDeleteMode() {
         if isDeleteMode {
-            // 削除モード開始
             selectedItems.removeAll()
             tableView.allowsMultipleSelectionDuringEditing = true
             tableView.setEditing(true, animated: true)
-            tableView.reloadData() // セルの非活性化を反映
+            tableView.reloadData()
 
-            // 「キャンセル」ボタンを設定
             let cancelButton = UIBarButtonItem(
                 title: "キャンセル",
                 style: .plain,
                 target: self,
                 action: #selector(didTapDeleteButton)
             )
-            cancelButton.tintColor = .red // ボタン色を赤に設定
+            cancelButton.tintColor = .red
 
-            // 削除モード中は追加ボタンを非表示にする
             navigationItem.rightBarButtonItems = [cancelButton]
 
-            // ツールバーの設定
             toolbarItems = [
                 UIBarButtonItem(title: "全選択", style: .plain, target: self, action: #selector(didTapSelectAllButton)),
                 UIBarButtonItem.flexibleSpace(),
@@ -270,20 +236,18 @@ class TableViewController: UITableViewController, ItemToggleDelegate, ItemEditDe
             ]
             navigationController?.setToolbarHidden(false, animated: true)
         } else {
-            // 通常モードに戻る
             tableView.setEditing(false, animated: true)
-            tableView.reloadData() // セルの活性化を反映
+            tableView.reloadData()
 
-            // 通常モードの右上ボタン (トラッシュボタンと追加ボタン) を復元
             let trashButton = UIBarButtonItem(
                 barButtonSystemItem: .trash,
                 target: self,
                 action: #selector(didTapDeleteButton)
             )
-            trashButton.tintColor = .red // ボタン色を赤に設定
+            trashButton.tintColor = .red
 
             let addButton = UIButton(type: .custom)
-            addButton.setImage(UIImage(systemName: "plus.rectangle.fill"), for: .normal) // SF Symbolsを利用
+            addButton.setImage(UIImage(systemName: "plus.rectangle.fill"), for: .normal)
             addButton.tintColor = .systemBlue
             addButton.addTarget(self, action: #selector(didTapAddButton), for: .touchUpInside)
 
@@ -335,8 +299,44 @@ class TableViewController: UITableViewController, ItemToggleDelegate, ItemEditDe
         tableView.reloadData()
         isDeleteMode = false
 
-        // ウィジェットを更新
         WidgetCenter.shared.reloadAllTimelines()
+    }
+
+    // MARK: - セグエと画面遷移
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        guard let addVC = (segue.destination as? UINavigationController)?.topViewController as? AddItemViewController else { return }
+
+        if segue.identifier == "EditSegue", let indexPath = sender as? IndexPath {
+            addVC.mode = .edit(items[indexPath.row])
+        } else if segue.identifier == "AddSegue" {
+            addVC.mode = .add
+        }
+
+        // デリゲートを設定
+        addVC.delegate = self
+    }
+
+    @IBAction func exitFromAddByCancel(segue: UIStoryboardSegue) {
+    }
+
+    @IBAction func exitFromAddBySave(segue: UIStoryboardSegue) {
+        guard let addVC = segue.source as? AddItemViewController, let item = addVC.editedItem else { return }
+        items.append(item)
+        tableView.insertRows(at: [IndexPath(row: items.count - 1, section: 0)], with: .automatic)
+
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+
+    @IBAction func exitFromEditByCancel(segue: UIStoryboardSegue) {
+    }
+
+    @IBAction func exitFromEditBySave(segue: UIStoryboardSegue) {
+        guard let addVC = segue.source as? AddItemViewController,
+              let editedItem = addVC.editedItem,
+              let indexPath = editIndexPath else { return }
+        items[indexPath.row] = editedItem
+        tableView.reloadRows(at: [indexPath], with: .automatic)
+        editIndexPath = nil
     }
 
     // MARK: - テーブルビューのデリゲートメソッド
@@ -363,19 +363,10 @@ class TableViewController: UITableViewController, ItemToggleDelegate, ItemEditDe
 
     // デリゲートメソッドを実装
     func didTapEditButton(for cell: ItemTableViewCell) {
-        // 編集ボタンがタップされたときの処理を実装
         guard let indexPath = tableView.indexPath(for: cell) else { return }
         editIndexPath = indexPath
 
-        // 編集画面に遷移
         performSegue(withIdentifier: "EditSegue", sender: indexPath)
-    }
-
-    private var isDeleteMode = false {
-        didSet {
-            toggleDeleteMode()
-            toggleTabBarInteraction()
-        }
     }
 
     private func toggleTabBarInteraction() {

@@ -8,14 +8,15 @@
 
 import UIKit
 
+// MARK: - CustomTabBarController
+/// カスタムタブバーコントローラ
 class CustomTabBarController: UITabBarController, UITabBarControllerDelegate {
 
+    // MARK: - ライフサイクル
     override func viewDidLoad() {
         super.viewDidLoad()
         self.delegate = self
-
-        // タブバーの外観を初期設定
-        configureTabBarAppearance()
+        configureTabBarAppearance()  // タブバーの外観を初期設定
     }
 
     /// 外観モードの変更を検知してタブバーの外観を更新
@@ -28,34 +29,16 @@ class CustomTabBarController: UITabBarController, UITabBarControllerDelegate {
         }
     }
 
+    // MARK: - 外観設定
     /// タブバーの外観を設定
     private func configureTabBarAppearance() {
         let appearance = UITabBarAppearance()
 
+        // ダークモードかライトモードかでスタイルを切り替え
         if traitCollection.userInterfaceStyle == .dark {
-            appearance.backgroundColor = UIColor.black
-            appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
-                .foregroundColor: UIColor.lightGray,
-                .font: UIFont.systemFont(ofSize: 12)
-            ]
-            appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-                .foregroundColor: UIColor.white,
-                .font: UIFont.boldSystemFont(ofSize: 14)
-            ]
-            appearance.stackedLayoutAppearance.normal.iconColor = UIColor.lightGray
-            appearance.stackedLayoutAppearance.selected.iconColor = UIColor.white
+            setupDarkModeAppearance(appearance)
         } else {
-            appearance.backgroundColor = UIColor.white
-            appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
-                .foregroundColor: UIColor.darkGray,
-                .font: UIFont.systemFont(ofSize: 12)
-            ]
-            appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-                .foregroundColor: UIColor.black,
-                .font: UIFont.boldSystemFont(ofSize: 14)
-            ]
-            appearance.stackedLayoutAppearance.normal.iconColor = UIColor.darkGray
-            appearance.stackedLayoutAppearance.selected.iconColor = UIColor.black
+            setupLightModeAppearance(appearance)
         }
 
         // 外観を適用
@@ -67,5 +50,37 @@ class CustomTabBarController: UITabBarController, UITabBarControllerDelegate {
         // タブバーの再描画を強制
         tabBar.setNeedsLayout()
         tabBar.layoutIfNeeded()
+    }
+
+    /// ダークモード用の外観を設定
+    /// - Parameter appearance: タブバーの外観
+    private func setupDarkModeAppearance(_ appearance: UITabBarAppearance) {
+        appearance.backgroundColor = UIColor.black
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
+            .foregroundColor: UIColor.lightGray,
+            .font: UIFont.systemFont(ofSize: 12)
+        ]
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
+            .foregroundColor: UIColor.white,
+            .font: UIFont.boldSystemFont(ofSize: 14)
+        ]
+        appearance.stackedLayoutAppearance.normal.iconColor = UIColor.lightGray
+        appearance.stackedLayoutAppearance.selected.iconColor = UIColor.white
+    }
+
+    /// ライトモード用の外観を設定
+    /// - Parameter appearance: タブバーの外観
+    private func setupLightModeAppearance(_ appearance: UITabBarAppearance) {
+        appearance.backgroundColor = UIColor.white
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
+            .foregroundColor: UIColor.darkGray,
+            .font: UIFont.systemFont(ofSize: 12)
+        ]
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
+            .foregroundColor: UIColor.black,
+            .font: UIFont.boldSystemFont(ofSize: 14)
+        ]
+        appearance.stackedLayoutAppearance.normal.iconColor = UIColor.darkGray
+        appearance.stackedLayoutAppearance.selected.iconColor = UIColor.black
     }
 }

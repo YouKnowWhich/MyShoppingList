@@ -12,7 +12,6 @@ import WidgetKit
 #endif
 
 // MARK: - PurchasedItemsViewControllerDelegate
-
 // 購入済みアイテムを未購入リストに戻すためのデリゲートプロトコル
 protocol PurchasedItemsViewControllerDelegate: AnyObject {
     func addItemBackToShoppingList(item: Item)
@@ -28,10 +27,15 @@ class PurchasedItemsViewController: UITableViewController, ItemToggleDelegate {
     // MARK: - プロパティ
     private var purchasedItems: [Item] = []
     weak var delegate: PurchasedItemsViewControllerDelegate?
+    private var selectedItems = Set<IndexPath>()
+    private var isDeleteMode = false {
+        didSet {
+            toggleDeleteMode()
+            toggleTabBarInteraction()
+        }
+    }
 
     @IBOutlet weak var segmentedControl: UISegmentedControl!
-
-    private var selectedItems = Set<IndexPath>()
 
     // MARK: - ライフサイクル
     override func viewDidLoad() {
@@ -47,22 +51,24 @@ class PurchasedItemsViewController: UITableViewController, ItemToggleDelegate {
         refreshData()
     }
 
-    // クラス解放時にObserverを解除
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
 
     // MARK: - 初期設定
+    /// 初期設定を行う
     private func setupView() {
         segmentedControl.selectedSegmentIndex = 0  // 初期状態は日付でソート
         sortItems(segmentedControl)
     }
 
+    /// テーブルビューの設定
     private func configureTableView() {
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 44
     }
 
+    /// 通知の登録
     private func registerForNotifications() {
         NotificationCenter.default.addObserver(
             self,
@@ -99,6 +105,7 @@ class PurchasedItemsViewController: UITableViewController, ItemToggleDelegate {
     }
 
     // MARK: - データ操作
+    /// 購入済みアイテムをUserDefaultsから読み込む
     private func loadPurchasedItems() {
         guard let userDefaults = UserDefaults(suiteName: suiteName),
               let data = userDefaults.data(forKey: purchasedItemsKey),
@@ -108,6 +115,7 @@ class PurchasedItemsViewController: UITableViewController, ItemToggleDelegate {
         purchasedItems = savedItems
     }
 
+    /// 購入済みアイテムをUserDefaultsに保存
     private func savePurchasedItems() {
         guard let data = try? JSONEncoder().encode(purchasedItems),
               let userDefaults = UserDefaults(suiteName: suiteName) else {
@@ -117,6 +125,7 @@ class PurchasedItemsViewController: UITableViewController, ItemToggleDelegate {
         userDefaults.set(data, forKey: purchasedItemsKey)
     }
 
+    /// データを更新してリロード
     private func refreshData() {
         loadPurchasedItems()
         tableView.reloadData()
@@ -127,7 +136,7 @@ class PurchasedItemsViewController: UITableViewController, ItemToggleDelegate {
     }
 
     // MARK: - ソート処理
-
+    /// セグメントに応じたソート処理を実行
     @IBAction func sortItems(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
         case 0:  // 日付でソート
@@ -167,10 +176,12 @@ class PurchasedItemsViewController: UITableViewController, ItemToggleDelegate {
     }
 
     // MARK: - 削除モード操作
+    /// 削除ボタンタップ時の処理
     @IBAction func didTapPurchasedDeleteButton(_ sender: UIBarButtonItem) {
         isDeleteMode.toggle()
     }
 
+    /// 削除モードの切り替え
     private func toggleDeleteMode() {
         if isDeleteMode {
             // 削除モード開始
@@ -206,6 +217,11 @@ class PurchasedItemsViewController: UITableViewController, ItemToggleDelegate {
 
             navigationController?.setToolbarHidden(true, animated: true)
         }
+    }
+
+    /// タブバーの有効/無効を切り替え
+    private func toggleTabBarInteraction() {
+        tabBarController?.tabBar.items?.forEach { $0.isEnabled = !isDeleteMode }
     }
 
     // MARK: - 全選択ボタンアクション
@@ -244,17 +260,6 @@ class PurchasedItemsViewController: UITableViewController, ItemToggleDelegate {
         savePurchasedItems()
         tableView.reloadData()
         isDeleteMode = false
-    }
-
-    private var isDeleteMode = false {
-        didSet {
-            toggleDeleteMode()
-            toggleTabBarInteraction()
-        }
-    }
-
-    private func toggleTabBarInteraction() {
-        tabBarController?.tabBar.items?.forEach { $0.isEnabled = !isDeleteMode }
     }
 
     // MARK: - テーブルビューのデリゲートメソッド
